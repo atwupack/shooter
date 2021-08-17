@@ -1,14 +1,13 @@
+mod input;
+mod draw;
+
 extern crate sdl2;
 
-use sdl2::pixels::Color;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use std::time::Duration;
 use sdl2::{TimerSubsystem, EventPump};
-use sdl2::render::{WindowCanvas, Texture, TextureCreator};
-use std::process::exit;
-use sdl2::image::{InitFlag, Sdl2ImageContext, LoadTexture};
-use sdl2::video::WindowContext;
+use sdl2::render::{WindowCanvas};
+use sdl2::image::{InitFlag, Sdl2ImageContext};
+use crate::input::{Inputs, do_input};
+use crate::draw::{prepare_scene, present_scene, Textures};
 
 const SCREEN_WIDTH : u32 = 1280;
 const SCREEN_HEIGHT : u32 = 720;
@@ -29,14 +28,15 @@ fn init_sdl() -> App {
 
     let image = sdl2::image::init(InitFlag::JPG | InitFlag::PNG).unwrap();
 
-    let texture_creator = canvas.texture_creator();
+    let textures = Textures::new(&canvas);
 
     App {
         timer,
         canvas,
         event,
         image,
-        texture_creator,
+        textures,
+        inputs: Inputs::default(),
     }
 }
 
@@ -46,51 +46,65 @@ struct App {
     canvas: WindowCanvas,
     event: EventPump,
     image: Sdl2ImageContext,
-    texture_creator: TextureCreator<WindowContext>,
+    textures: Textures,
+    inputs: Inputs,
 }
 
 impl App {
     fn prepare_scene(&mut self) {
-        self.canvas.set_draw_color(Color::RGBA(96, 128, 255, 255));
-        self.canvas.clear();
+        prepare_scene(&mut self.canvas);
     }
 
     fn present_scene(&mut self) {
-        self.canvas.present();
+        present_scene(&mut self.canvas);
     }
 
     fn do_input(&mut self) {
-        for event in self.event.poll_iter() {
-            match event {
-                Event::Quit {..} => exit(0),
-                _ => {}
-            }
-        }
+        do_input(&mut self.event, &mut self.inputs);
     }
 
-    fn load_texture(&self, filename: &str) -> Texture {
-        return self.texture_creator.load_texture(filename).unwrap();
+    fn load_texture(&mut self, name: &str, filename: &str) {
+        self.textures.load_texture(name, filename);
+    }
+
+    fn blit(&mut self, name: &str, x: i32, y: i32) {
+        self.textures.blit(&mut self.canvas, name, x, y);
     }
 }
 
-struct Player<'r> {
+struct Player {
     x: i32,
     y: i32,
-    texture: Texture<'r>,
+    texture: String,
 }
 
 pub fn main() {
     let mut app = init_sdl();
 
-    let player = Player {
+    app.load_texture("player","gfx\\player.png");
+
+    let mut player = Player {
         x: 100,
         y: 100,
-        texture: app.load_texture("gfx\\player.png"),
+        texture: "player".to_string(),
     };
 
     loop {
         app.prepare_scene();
         app.do_input();
+        if app.inputs.up() {
+            player.y -= 4;
+        }
+        if app.inputs.down() {
+            player.y += 4;
+        }
+        if app.inputs.left() {
+            player.x -= 4;
+        }
+        if app.inputs.right() {
+            player.x += 4;
+        }
+        app.blit(&player.texture, player.x, player.y);
         app.present_scene();
         app.timer.delay(16);
     }
