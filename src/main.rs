@@ -1,5 +1,6 @@
 mod input;
 mod draw;
+mod entity;
 
 extern crate sdl2;
 
@@ -8,6 +9,7 @@ use sdl2::render::{WindowCanvas};
 use sdl2::image::{InitFlag, Sdl2ImageContext};
 use crate::input::{Inputs, do_input};
 use crate::draw::{prepare_scene, present_scene, Textures};
+use crate::entity::Entity;
 
 const SCREEN_WIDTH : u32 = 1280;
 const SCREEN_HEIGHT : u32 = 720;
@@ -67,44 +69,50 @@ impl App {
         self.textures.load_texture(name, filename);
     }
 
-    fn blit(&mut self, name: &str, x: i32, y: i32) {
-        self.textures.blit(&mut self.canvas, name, x, y);
+    fn blit(&mut self, entity: &Entity) {
+        self.textures.blit(&mut self.canvas, entity.texture(), entity.x(), entity.y());
     }
 }
 
-struct Player {
-    x: i32,
-    y: i32,
-    texture: String,
-}
 
 pub fn main() {
     let mut app = init_sdl();
 
     app.load_texture("player","gfx\\player.png");
+    let mut player = Entity::new(100, 100,0,0,0,"player");
 
-    let mut player = Player {
-        x: 100,
-        y: 100,
-        texture: "player".to_string(),
-    };
+    app.load_texture("bullet","gfx\\playerBullet.png");
+    let mut bullet = Entity::new(100, 100,16,0,0,"bullet");
 
     loop {
         app.prepare_scene();
         app.do_input();
         if app.inputs.up() {
-            player.y -= 4;
+            player.move_up(4);
         }
         if app.inputs.down() {
-            player.y += 4;
+            player.move_down(4);
         }
         if app.inputs.left() {
-            player.x -= 4;
+            player.move_left(4);
         }
         if app.inputs.right() {
-            player.x += 4;
+            player.move_right(4);
         }
-        app.blit(&player.texture, player.x, player.y);
+        if app.inputs.fire() && bullet.health()==0 {
+            bullet.set_x(player.x());
+            bullet.set_y(player.y());
+            bullet.set_health(1);
+        }
+        bullet.apply_speed();
+        if bullet.x() > SCREEN_WIDTH as i32 {
+            bullet.set_health(0);
+        }
+        app.blit(&player);
+        if bullet.health() > 0 {
+            app.blit(&bullet);
+        }
+
         app.present_scene();
         app.timer.delay(16);
     }

@@ -2,53 +2,47 @@ use sdl2::keyboard::Scancode;
 use sdl2::EventPump;
 use sdl2::event::Event;
 use std::process::exit;
+use std::collections::HashSet;
 
 #[derive(Debug, Default)]
 pub struct Inputs {
-    up: bool,
-    down: bool,
-    left: bool,
-    right: bool,
+    keyboard: HashSet<Scancode>,
 }
 
 impl Inputs {
 
     pub fn up(&self) -> bool {
-        self.up
+        self.keyboard.contains(&Scancode::Up)
     }
 
     pub fn down(&self) -> bool {
-        self.down
+        self.keyboard.contains(&Scancode::Down)
     }
 
     pub fn left(&self) -> bool {
-        self.left
+        self.keyboard.contains(&Scancode::Left)
     }
 
     pub fn right(&self) -> bool {
-        self.right
+        self.keyboard.contains(&Scancode::Right)
+    }
+
+    pub fn fire(&self) -> bool {
+        self.keyboard.contains(&Scancode::LCtrl)
     }
 
     pub fn do_key_down(&mut self, scancode: Option<Scancode>, repeat: bool) {
-        if !repeat {
-            match scancode {
-                Some(Scancode::Up) => {self.up = true},
-                Some(Scancode::Down) => {self.down = true},
-                Some(Scancode::Left) => {self.left = true},
-                Some(Scancode::Right) => {self.right = true},
-                _ => {}
+        if !repeat  {
+            if let Some(s) = scancode {
+                self.keyboard.insert(s);
             }
         }
     }
 
     pub fn do_key_up(&mut self, scancode: Option<Scancode>, repeat: bool) {
-        if !repeat {
-            match scancode {
-                Some(Scancode::Up) => {self.up = false},
-                Some(Scancode::Down) => {self.down = false},
-                Some(Scancode::Left) => {self.left = false},
-                Some(Scancode::Right) => {self.right = false},
-                _ => {}
+        if !repeat  {
+            if let Some(s) = scancode {
+                self.keyboard.remove(&s);
             }
         }
     }
