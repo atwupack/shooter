@@ -58,14 +58,29 @@ impl App {
     }
 
     pub(crate) fn run_stage(&mut self, stage: &mut Stage) {
+        let mut then = 0;
+        let mut remainder = 0.0;
         loop {
             self.prepare_scene();
             self.do_input();
             stage.logic(&self.inputs);
             stage.draw(&mut self.canvas);
             self.present_scene();
-            self.timer.delay(16);
+            cap_frame_rate(&mut self.timer, &mut then, &mut remainder);
         }
     }
+}
+
+fn cap_frame_rate(timer: &mut TimerSubsystem, then: &mut u32, remainder: &mut f32) {
+    let mut wait = 16 * (*remainder as i32);
+    *remainder = remainder.fract();
+    let frame_time = timer.ticks() - *then;
+    wait -= frame_time as i32;
+    if wait < 1 {
+        wait = 1;
+    }
+    timer.delay(wait as u32);
+    *remainder += 0.667;
+    *then = timer.ticks();
 }
 
