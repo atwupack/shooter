@@ -1,10 +1,10 @@
 
 
 pub struct Entity {
-    x: i32,
-    y: i32,
-    dx: i32,
-    dy: i32,
+    x: f32,
+    y: f32,
+    dx: f32,
+    dy: f32,
     width: u32,
     height: u32,
     health: u32,
@@ -14,7 +14,7 @@ pub struct Entity {
 
 impl Entity {
 
-    pub fn new(x: i32, y: i32, dx: i32, dy: i32, width:u32, height:u32, health:u32, texture: &str) -> Entity {
+    pub fn new(x: f32, y: f32, dx: f32, dy: f32, width:u32, height:u32, health:u32, texture: &str) -> Entity {
         Entity {
             x,
             y,
@@ -51,28 +51,20 @@ impl Entity {
         self.y += self.dy;
     }
 
-    pub(crate) fn set_dx(&mut self, dx: i32) {
+    pub(crate) fn set_dx(&mut self, dx: f32) {
         self.dx = dx;
     }
 
-    pub(crate) fn set_dy(&mut self, dy: i32) {
+    pub(crate) fn set_dy(&mut self, dy: f32) {
         self.dy = dy;
     }
 
-    pub fn x(&self) -> i32 {
+    pub fn x(&self) -> f32 {
         self.x
     }
 
-    pub fn set_x(&mut self, x: i32) {
-        self.x = x;
-    }
-
-    pub fn y(&self) -> i32 {
+    pub fn y(&self) -> f32 {
         self.y
-    }
-
-    pub fn set_y(&mut self, y: i32) {
-        self.y = y;
     }
 
     pub fn texture(&self) -> &str {
@@ -85,5 +77,9 @@ impl Entity {
 
     pub fn health(&self) -> u32 {
         self.health
+    }
+
+    pub(crate) fn width(&self) -> u32 {
+        self.width
     }
 }
