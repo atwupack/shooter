@@ -5,6 +5,7 @@ edition = "2018"
 
 [dependencies]
 rand = "0.8.4"
+derive_builder = "0.10.2"
 
 [dependencies.sdl2]
 version = "0.34.5"

@@ -1,9 +1,10 @@
-use crate::entity::Entity;
+use crate::entity::{Entity, EntityBuilder, EntityType};
 use crate::draw::Textures;
 use sdl2::render::WindowCanvas;
 use crate::input::Inputs;
 use crate::app::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use rand::random;
+use crate::entity::EntityType::{BULLET, ENEMY, PLAYER};
 
 const PLAYER_SPEED: f32 = 4.0;
 const PLAYER_BULLET_SPEED: f32 = 16.0;
@@ -13,7 +14,7 @@ pub struct Stage {
     bullets: Vec<Entity>,
     player: Entity,
     textures: Textures,
-    enemy_spawn_timer: i32,
+    enemy_spawn_timer: u32,
 }
 
 impl Stage {
@@ -33,9 +34,9 @@ impl Stage {
     pub fn init_stage(canvas: &WindowCanvas) -> Self {
         let mut textures = Textures::new(canvas);
         // bullets
-        textures.load_texture("bullet","gfx\\playerBullet.png");
+        textures.load_texture(EntityType::BULLET,"gfx\\playerBullet.png");
         // enemy
-        textures.load_texture("enemy","gfx\\enemy.png");
+        textures.load_texture(EntityType::ENEMY,"gfx\\enemy.png");
         // player
         let player = init_player(&mut textures);
 
@@ -44,21 +45,28 @@ impl Stage {
             bullets: Vec::new(),
             textures,
             player,
-            enemy_spawn_timer: 0,
+            enemy_spawn_timer: 1,
         }
     }
 
     fn fire_bullet(&mut self) {
-        let (width, height) = self.textures.texture_size("bullet");
+        let (width, height) = self.textures.texture_size(EntityType::BULLET);
         let bullet_y = self.player.y() + (self.player.height() as f32 / 2.0) - (height as f32 / 2.0);
-        let bullet = Entity::new(self.player.x(), bullet_y, PLAYER_BULLET_SPEED,0.0, width, height, 1,"bullet");
+        let bullet = EntityBuilder::default()
+            .x(self.player.x())
+            .y(bullet_y)
+            .dx(PLAYER_BULLET_SPEED)
+            .width(width)
+            .height(height)
+            .entity_type(BULLET)
+            .build().unwrap();
         self.bullets.push(bullet);
         self.player.set_reload(8);
     }
 
     fn draw_bullets(&mut self, canvas: &mut WindowCanvas) {
         for bullet in &self.bullets {
-            self.textures.blit(canvas, bullet.texture(), bullet.x() as i32, bullet.y() as i32)
+            self.textures.blit(canvas, bullet.entity_type(), bullet.x() as i32, bullet.y() as i32)
         }
     }
 
@@ -66,7 +74,7 @@ impl Stage {
         let mut i = 0;
         while i < self.bullets.len() {
             let bullet = &mut self.bullets[i];
-            if bullet.x() > 1280.0 {
+            if bullet.x() > SCREEN_WIDTH as f32 {
                 let _val = self.bullets.remove(i);
             } else {
                 bullet.apply_speed();
@@ -102,7 +110,7 @@ impl Stage {
     }
 
     fn draw_player(&mut self, canvas: &mut WindowCanvas) {
-        self.textures.blit(canvas, self.player.texture(), self.player.x() as i32, self.player.y() as i32)
+        self.textures.blit(canvas, self.player.entity_type(), self.player.x() as i32, self.player.y() as i32)
     }
 
     fn do_fighters(&mut self) {
@@ -121,24 +129,37 @@ impl Stage {
     fn spawn_enemies(&mut self) {
         self.enemy_spawn_timer -= 1;
         if self.enemy_spawn_timer <= 0 {
-            let (width, height) = self.textures.texture_size("enemy");
+            let (width, height) = self.textures.texture_size(EntityType::ENEMY);
             let speed = 2 + (random::<u32>() % 4);
-            let enemy = Entity::new(SCREEN_WIDTH as f32,  (random::<u32>() % SCREEN_HEIGHT) as f32 , -(speed as f32), 0.0, width, height, 0, "enemy");
+            let enemy = EntityBuilder::default()
+                .x(SCREEN_WIDTH as f32)
+                .y((random::<u32>() % SCREEN_HEIGHT) as f32)
+                .dx(-(speed as f32))
+                .width(width)
+                .height(height)
+                .entity_type(ENEMY)
+                .build().unwrap();
             self.fighters.push(enemy);
-            self.enemy_spawn_timer = 30;
+            self.enemy_spawn_timer = 30 + (random::<u32>() % 60);
         }
     }
 
     fn draw_fighters(&mut self, canvas: &mut WindowCanvas) {
         for fighter in &self.fighters {
-            self.textures.blit(canvas, fighter.texture(), fighter.x() as i32, fighter.y() as i32)
+            self.textures.blit(canvas, fighter.entity_type(), fighter.x() as i32, fighter.y() as i32)
         }
     }
 }
 
 fn init_player(textures: &mut Textures) -> Entity {
-    textures.load_texture("player", "gfx\\player.png");
-    let (width, height) = textures.texture_size("player");
-    let player = Entity::new(100.0, 100.0, 0.0,0.0, width, height, 16, "player");
+    textures.load_texture(PLAYER, "gfx\\player.png");
+    let (width, height) = textures.texture_size(PLAYER);
+    let player = EntityBuilder::default()
+        .x(100.0)
+        .y(100.0)
+        .width(width)
+        .height(height)
+        .entity_type(PLAYER)
+        .build().unwrap();
     player
 }

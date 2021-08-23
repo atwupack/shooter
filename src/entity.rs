@@ -1,5 +1,22 @@
+use derive_builder::Builder;
+use crate::entity::EntityType::PLAYER;
 
+#[derive(PartialEq, Eq,Hash, Debug, Clone)]
+pub enum EntityType {
+    PLAYER,
+    ENEMY,
+    BULLET,
+}
 
+impl Default for EntityType {
+    fn default() -> Self {
+        PLAYER
+    }
+}
+
+#[derive(Default, Builder, Debug)]
+#[builder(default)]
+#[builder(setter(into))]
 pub struct Entity {
     x: f32,
     y: f32,
@@ -9,24 +26,10 @@ pub struct Entity {
     height: u32,
     health: u32,
     reload: u32,
-    texture: String,
+    entity_type: EntityType
 }
 
 impl Entity {
-
-    pub fn new(x: f32, y: f32, dx: f32, dy: f32, width:u32, height:u32, health:u32, texture: &str) -> Entity {
-        Entity {
-            x,
-            y,
-            dx,
-            dy,
-            width,
-            height,
-            health,
-            reload: 0,
-            texture: texture.to_string(),
-        }
-    }
 
     pub(crate) fn height(&self) -> u32 {
         self.height
@@ -59,27 +62,27 @@ impl Entity {
         self.dy = dy;
     }
 
-    pub fn x(&self) -> f32 {
+    pub(crate) fn x(&self) -> f32 {
         self.x
     }
 
-    pub fn y(&self) -> f32 {
+    pub(crate) fn y(&self) -> f32 {
         self.y
     }
 
-    pub fn texture(&self) -> &str {
-        self.texture.as_str()
-    }
-
-    pub fn set_health(&mut self, health: u32) {
+    pub(crate) fn set_health(&mut self, health: u32) {
         self.health = health;
     }
 
-    pub fn health(&self) -> u32 {
+    pub(crate) fn health(&self) -> u32 {
         self.health
     }
 
     pub(crate) fn width(&self) -> u32 {
         self.width
+    }
+
+    pub(crate) fn entity_type(&self) -> EntityType {
+        self.entity_type.clone()
     }
 }

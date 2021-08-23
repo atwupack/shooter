@@ -3,10 +3,11 @@ use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use sdl2::image::LoadTexture;
 use sdl2::rect::Rect;
+use crate::entity::EntityType;
 
 pub struct Textures {
     texture_creator: TextureCreator<WindowContext>,
-    texture_store: HashMap<String, Texture>,
+    texture_store: HashMap<EntityType, Texture>,
 }
 
 impl Textures {
@@ -18,20 +19,20 @@ impl Textures {
         }
     }
 
-    pub fn load_texture(&mut self, name: &str, filename: &str) {
+    pub fn load_texture(&mut self, entity: EntityType, filename: &str) {
         let texture = self.texture_creator.load_texture(filename).unwrap();
-        self.texture_store.insert(name.to_string(), texture);
+        self.texture_store.insert(entity, texture);
     }
 
-    pub fn blit(&mut self,canvas: &mut WindowCanvas, name: &str, x: i32, y: i32) {
-        let texture = self.texture_store.get(&name.to_string()).unwrap();
+    pub fn blit(&mut self,canvas: &mut WindowCanvas, entity: EntityType, x: i32, y: i32) {
+        let texture = self.texture_store.get(&entity).unwrap();
         let query = texture.query();
         let rect = Rect::new(x, y, query.width, query.height);
         canvas.copy(&texture, None, rect).unwrap();
     }
 
-    pub(crate) fn texture_size(&self, name: &str) -> (u32, u32) {
-        let texture = self.texture_store.get(&name.to_string()).unwrap();
+    pub(crate) fn texture_size(&self, entity: EntityType) -> (u32, u32) {
+        let texture = self.texture_store.get(&entity).unwrap();
         let query = texture.query();
         (query.width, query.height)
     }
