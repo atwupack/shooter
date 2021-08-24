@@ -4,6 +4,7 @@ mod entity;
 mod app;
 mod stage;
 mod util;
+mod backend;
 
 extern crate sdl2;
 
