@@ -1,16 +1,16 @@
-use sdl2::{TimerSubsystem, EventPump};
+use sdl2::EventPump;
 use sdl2::render::WindowCanvas;
 use sdl2::image::{Sdl2ImageContext, InitFlag};
 use crate::input::{Inputs, do_input};
 use crate::stage::Stage;
 use sdl2::pixels::Color;
+use crate::util::FrameRateTimer;
 
 pub const SCREEN_WIDTH : u32 = 1280;
 pub const SCREEN_HEIGHT : u32 = 720;
 
 
 pub struct App {
-    timer: TimerSubsystem,
     canvas: WindowCanvas,
     event: EventPump,
     _image: Sdl2ImageContext,
@@ -27,12 +27,10 @@ impl App {
 
         sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "linear");
         let canvas = window.into_canvas().accelerated().build().unwrap();
-        let timer = sdl_context.timer().unwrap();
         let event = sdl_context.event_pump().unwrap();
         let image = sdl2::image::init(InitFlag::JPG | InitFlag::PNG).unwrap();
 
         App {
-            timer,
             canvas,
             event,
             _image: image,
@@ -58,29 +56,14 @@ impl App {
     }
 
     pub(crate) fn run_stage(&mut self, stage: &mut Stage) {
-        let mut then = 0;
-        let mut remainder = 0.0;
+        let mut frt = FrameRateTimer::new(60);
         loop {
             self.prepare_scene();
             self.do_input();
             stage.logic(&self.inputs);
             stage.draw(&mut self.canvas);
             self.present_scene();
-            cap_frame_rate(&mut self.timer, &mut then, &mut remainder);
+            frt.cap_frame_rate();
         }
     }
 }
-
-fn cap_frame_rate(timer: &mut TimerSubsystem, then: &mut u32, remainder: &mut f32) {
-    let mut wait = 16 * (*remainder as i32);
-    *remainder = remainder.fract();
-    let frame_time = timer.ticks() - *then;
-    wait -= frame_time as i32;
-    if wait < 1 {
-        wait = 1;
-    }
-    timer.delay(wait as u32);
-    *remainder += 0.667;
-    *then = timer.ticks();
-}
-
