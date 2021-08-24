@@ -3,6 +3,7 @@ mod draw;
 mod entity;
 mod app;
 mod stage;
+mod util;
 
 extern crate sdl2;
 
