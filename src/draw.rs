@@ -1,9 +1,9 @@
-use sdl2::render::{WindowCanvas, TextureCreator, Texture};
-use sdl2::video::WindowContext;
-use std::collections::HashMap;
+use crate::entity::EntityType;
 use sdl2::image::LoadTexture;
 use sdl2::rect::Rect;
-use crate::entity::EntityType;
+use sdl2::render::{Texture, TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
+use std::collections::HashMap;
 
 pub struct Textures {
     texture_creator: TextureCreator<WindowContext>,
@@ -11,7 +11,6 @@ pub struct Textures {
 }
 
 impl Textures {
-
     pub fn new(canvas: &WindowCanvas) -> Textures {
         Textures {
             texture_creator: canvas.texture_creator(),
@@ -24,7 +23,7 @@ impl Textures {
         self.texture_store.insert(entity, texture);
     }
 
-    pub fn blit(&mut self,canvas: &mut WindowCanvas, entity: EntityType, x: i32, y: i32) {
+    pub fn blit(&mut self, canvas: &mut WindowCanvas, entity: EntityType, x: i32, y: i32) {
         let texture = self.texture_store.get(&entity).unwrap();
         let query = texture.query();
         let rect = Rect::new(x, y, query.width, query.height);

@@ -1,10 +1,11 @@
-use crate::entity::{Entity, EntityBuilder, EntityType};
+use crate::app::{SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::draw::Textures;
-use sdl2::render::WindowCanvas;
-use crate::input::Inputs;
-use crate::app::{SCREEN_WIDTH, SCREEN_HEIGHT};
-use rand::random;
 use crate::entity::EntityType::{BULLET, ENEMY, PLAYER};
+use crate::entity::{Entity, EntityBuilder, EntityType};
+use crate::input::Inputs;
+use crate::util::collision;
+use rand::random;
+use sdl2::render::WindowCanvas;
 
 const PLAYER_SPEED: f32 = 4.0;
 const PLAYER_BULLET_SPEED: f32 = 16.0;
@@ -20,6 +21,7 @@ pub struct Stage {
 impl Stage {
     pub(crate) fn logic(&mut self, inputs: &Inputs) {
         self.do_player(inputs);
+        self.do_bullets_hit_fighters();
         self.do_fighters();
         self.do_bullets();
         self.spawn_enemies();
@@ -34,9 +36,9 @@ impl Stage {
     pub fn init_stage(canvas: &WindowCanvas) -> Self {
         let mut textures = Textures::new(canvas);
         // bullets
-        textures.load_texture(EntityType::BULLET,"gfx\\playerBullet.png");
+        textures.load_texture(EntityType::BULLET, "gfx\\playerBullet.png");
         // enemy
-        textures.load_texture(EntityType::ENEMY,"gfx\\enemy.png");
+        textures.load_texture(EntityType::ENEMY, "gfx\\enemy.png");
         // player
         let player = init_player(&mut textures);
 
@@ -51,7 +53,8 @@ impl Stage {
 
     fn fire_bullet(&mut self) {
         let (width, height) = self.textures.texture_size(EntityType::BULLET);
-        let bullet_y = self.player.y() + (self.player.height() as f32 / 2.0) - (height as f32 / 2.0);
+        let bullet_y =
+            self.player.y() + (self.player.height() as f32 / 2.0) - (height as f32 / 2.0);
         let bullet = EntityBuilder::default()
             .x(self.player.x())
             .y(bullet_y)
@@ -59,14 +62,21 @@ impl Stage {
             .width(width)
             .height(height)
             .entity_type(BULLET)
-            .build().unwrap();
+            .health(1 as u32)
+            .build()
+            .unwrap();
         self.bullets.push(bullet);
         self.player.set_reload(8);
     }
 
     fn draw_bullets(&mut self, canvas: &mut WindowCanvas) {
         for bullet in &self.bullets {
-            self.textures.blit(canvas, bullet.entity_type(), bullet.x() as i32, bullet.y() as i32)
+            self.textures.blit(
+                canvas,
+                bullet.entity_type(),
+                bullet.x() as i32,
+                bullet.y() as i32,
+            )
         }
     }
 
@@ -74,7 +84,7 @@ impl Stage {
         let mut i = 0;
         while i < self.bullets.len() {
             let bullet = &mut self.bullets[i];
-            if bullet.x() > SCREEN_WIDTH as f32 {
+            if bullet.health() == 0 || bullet.x() > SCREEN_WIDTH as f32 {
                 let _val = self.bullets.remove(i);
             } else {
                 bullet.apply_speed();
@@ -83,8 +93,27 @@ impl Stage {
         }
     }
 
-    fn do_player(&mut self, inputs: &Inputs) {
+    fn do_bullets_hit_fighters(&mut self) {
+        for bullet in &mut self.bullets {
+            for fighter in &mut self.fighters {
+                if collision(
+                    fighter.x() as i32,
+                    fighter.y() as i32,
+                    fighter.width() as i32,
+                    fighter.height() as i32,
+                    bullet.x() as i32,
+                    bullet.y() as i32,
+                    bullet.width() as i32,
+                    bullet.height() as i32,
+                ) {
+                    fighter.set_health(0);
+                    bullet.set_health(0);
+                }
+            }
+        }
+    }
 
+    fn do_player(&mut self, inputs: &Inputs) {
         self.player.set_dx(0.0);
         self.player.set_dy(0.0);
 
@@ -110,14 +139,19 @@ impl Stage {
     }
 
     fn draw_player(&mut self, canvas: &mut WindowCanvas) {
-        self.textures.blit(canvas, self.player.entity_type(), self.player.x() as i32, self.player.y() as i32)
+        self.textures.blit(
+            canvas,
+            self.player.entity_type(),
+            self.player.x() as i32,
+            self.player.y() as i32,
+        )
     }
 
     fn do_fighters(&mut self) {
         let mut i = 0;
         while i < self.fighters.len() {
             let fighter = &mut self.fighters[i];
-            if fighter.x() < -(fighter.width() as f32) {
+            if (fighter.x() < -(fighter.width() as f32)) || fighter.health() == 0 {
                 let _val = self.fighters.remove(i);
             } else {
                 fighter.apply_speed();
@@ -138,7 +172,9 @@ impl Stage {
                 .width(width)
                 .height(height)
                 .entity_type(ENEMY)
-                .build().unwrap();
+                .health(1 as u32)
+                .build()
+                .unwrap();
             self.fighters.push(enemy);
             self.enemy_spawn_timer = 30 + (random::<u32>() % 60);
         }
@@ -146,7 +182,12 @@ impl Stage {
 
     fn draw_fighters(&mut self, canvas: &mut WindowCanvas) {
         for fighter in &self.fighters {
-            self.textures.blit(canvas, fighter.entity_type(), fighter.x() as i32, fighter.y() as i32)
+            self.textures.blit(
+                canvas,
+                fighter.entity_type(),
+                fighter.x() as i32,
+                fighter.y() as i32,
+            )
         }
     }
 }
@@ -160,6 +201,7 @@ fn init_player(textures: &mut Textures) -> Entity {
         .width(width)
         .height(height)
         .entity_type(PLAYER)
-        .build().unwrap();
+        .build()
+        .unwrap();
     player
 }

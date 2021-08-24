@@ -1,7 +1,7 @@
-use derive_builder::Builder;
 use crate::entity::EntityType::PLAYER;
+use derive_builder::Builder;
 
-#[derive(PartialEq, Eq,Hash, Debug, Clone)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub enum EntityType {
     PLAYER,
     ENEMY,
@@ -26,11 +26,10 @@ pub struct Entity {
     height: u32,
     health: u32,
     reload: u32,
-    entity_type: EntityType
+    entity_type: EntityType,
 }
 
 impl Entity {
-
     pub(crate) fn height(&self) -> u32 {
         self.height
     }

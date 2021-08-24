@@ -1,7 +1,7 @@
 use crate::backend::Backend;
+use sdl2::image::{InitFlag, Sdl2ImageContext};
 use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
-use sdl2::image::{Sdl2ImageContext, InitFlag};
 
 pub struct Sdl2Backend {
     canvas: WindowCanvas,
@@ -10,7 +10,7 @@ pub struct Sdl2Backend {
 }
 
 impl Backend for Sdl2Backend {
-    fn init(title: &str, width: u32, height:u32) -> Self {
+    fn init(title: &str, width: u32, height: u32) -> Self {
         let sdl_context = sdl2::init().unwrap();
 
         let video = sdl_context.video().unwrap();

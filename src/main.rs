@@ -1,16 +1,15 @@
-mod input;
+mod app;
+mod backend;
 mod draw;
 mod entity;
-mod app;
+mod input;
 mod stage;
 mod util;
-mod backend;
 
 extern crate sdl2;
 
 use crate::app::App;
 use crate::stage::Stage;
-
 
 pub fn main() {
     let mut app = App::init_sdl();

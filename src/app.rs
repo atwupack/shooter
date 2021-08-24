@@ -1,14 +1,13 @@
-use sdl2::EventPump;
-use sdl2::render::WindowCanvas;
-use sdl2::image::{Sdl2ImageContext, InitFlag};
-use crate::input::{Inputs, do_input};
+use crate::input::{do_input, Inputs};
 use crate::stage::Stage;
-use sdl2::pixels::Color;
 use crate::util::FrameRateTimer;
+use sdl2::image::{InitFlag, Sdl2ImageContext};
+use sdl2::pixels::Color;
+use sdl2::render::WindowCanvas;
+use sdl2::EventPump;
 
-pub const SCREEN_WIDTH : u32 = 1280;
-pub const SCREEN_HEIGHT : u32 = 720;
-
+pub const SCREEN_WIDTH: u32 = 1280;
+pub const SCREEN_HEIGHT: u32 = 720;
 
 pub struct App {
     canvas: WindowCanvas,
@@ -18,12 +17,14 @@ pub struct App {
 }
 
 impl App {
-
     pub fn init_sdl() -> Self {
         let sdl_context = sdl2::init().unwrap();
 
         let video = sdl_context.video().unwrap();
-        let window = video.window("Shooter", SCREEN_WIDTH, SCREEN_HEIGHT).build().unwrap();
+        let window = video
+            .window("Shooter", SCREEN_WIDTH, SCREEN_HEIGHT)
+            .build()
+            .unwrap();
 
         sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "linear");
         let canvas = window.into_canvas().accelerated().build().unwrap();

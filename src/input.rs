@@ -1,8 +1,8 @@
+use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::EventPump;
-use sdl2::event::Event;
-use std::process::exit;
 use std::collections::HashSet;
+use std::process::exit;
 
 #[derive(Debug, Default)]
 pub struct Inputs {
@@ -10,7 +10,6 @@ pub struct Inputs {
 }
 
 impl Inputs {
-
     pub fn up(&self) -> bool {
         self.keyboard.contains(&Scancode::Up)
     }
@@ -32,7 +31,7 @@ impl Inputs {
     }
 
     pub fn do_key_down(&mut self, scancode: Option<Scancode>, repeat: bool) {
-        if !repeat  {
+        if !repeat {
             if let Some(s) = scancode {
                 self.keyboard.insert(s);
             }
@@ -40,7 +39,7 @@ impl Inputs {
     }
 
     pub fn do_key_up(&mut self, scancode: Option<Scancode>, repeat: bool) {
-        if !repeat  {
+        if !repeat {
             if let Some(s) = scancode {
                 self.keyboard.remove(&s);
             }
@@ -51,15 +50,14 @@ impl Inputs {
 pub fn do_input(events: &mut EventPump, inputs: &mut Inputs) {
     for event in events.poll_iter() {
         match event {
-            Event::Quit {..} => exit(0),
-            Event::KeyDown { scancode, repeat, .. } => {
-                inputs.do_key_down(scancode, repeat)
-            },
-            Event::KeyUp { scancode, repeat, .. } => {
-                inputs.do_key_up(scancode, repeat)
-            },
+            Event::Quit { .. } => exit(0),
+            Event::KeyDown {
+                scancode, repeat, ..
+            } => inputs.do_key_down(scancode, repeat),
+            Event::KeyUp {
+                scancode, repeat, ..
+            } => inputs.do_key_up(scancode, repeat),
             _ => {}
         }
     }
 }
-

@@ -1,6 +1,6 @@
-use std::time::{Instant, Duration};
-use std::thread;
 use std::cmp::{max, min};
+use std::thread;
+use std::time::{Duration, Instant};
 
 pub struct FrameRateTimer {
     whole_ms_per_frame: i32,
@@ -36,6 +36,15 @@ impl FrameRateTimer {
     }
 }
 
-pub(crate) fn collision(x1: i32, y1: i32, w1: i32, h1: i32, x2: i32, y2: i32, w2: i32, h2: i32) -> bool {
-    (max(x1, y1) < min(x1+w1, x2+w2)) && (max(y1,y2) < min(y1+h1, y2+h2))
+pub(crate) fn collision(
+    x1: i32,
+    y1: i32,
+    w1: i32,
+    h1: i32,
+    x2: i32,
+    y2: i32,
+    w2: i32,
+    h2: i32,
+) -> bool {
+    (max(x1, y1) < min(x1 + w1, x2 + w2)) && (max(y1, y2) < min(y1 + h1, y2 + h2))
 }
