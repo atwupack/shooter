@@ -1,6 +1,7 @@
 use std::cmp::{max, min};
 use std::thread;
 use std::time::{Duration, Instant};
+use crate::entity::Entity;
 
 pub struct FrameRateTimer {
     whole_ms_per_frame: i32,
@@ -46,5 +47,5 @@ pub(crate) fn collision(
     w2: i32,
     h2: i32,
 ) -> bool {
-    (max(x1, y1) < min(x1 + w1, x2 + w2)) && (max(y1, y2) < min(y1 + h1, y2 + h2))
+    (max(x1, x2) < min(x1 + w1, x2 + w2)) && (max(y1, y2) < min(y1 + h1, y2 + h2))
 }
