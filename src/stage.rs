@@ -1,11 +1,11 @@
+use crate::defs::{PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::draw::Textures;
-use crate::entity::EntityType::{PlayerBullet, Enemy, Player, AlienBullet};
+use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
 use crate::entity::{Entity, EntityBuilder, EntityType};
 use crate::input::Inputs;
 use crate::util::{collision, remove_or_apply};
 use rand::random;
 use sdl2::render::WindowCanvas;
-use crate::defs::{PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT};
 
 pub struct Stage {
     fighters: Vec<Entity>,

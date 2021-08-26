@@ -1,10 +1,10 @@
 mod app;
+mod defs;
 mod draw;
 mod entity;
 mod input;
 mod stage;
 mod util;
-mod defs;
 
 extern crate sdl2;
 

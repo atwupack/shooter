@@ -1,3 +1,4 @@
+use crate::defs::{FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::input::{do_input, Inputs};
 use crate::stage::Stage;
 use crate::util::FrameRateTimer;
@@ -5,7 +6,6 @@ use sdl2::image::{InitFlag, Sdl2ImageContext};
 use sdl2::pixels::Color;
 use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
-use crate::defs::{SCREEN_WIDTH, SCREEN_HEIGHT, FPS};
 
 pub struct App {
     canvas: WindowCanvas,
