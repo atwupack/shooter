@@ -1,7 +1,7 @@
+use crate::entity::Entity;
 use std::cmp::{max, min};
 use std::thread;
 use std::time::{Duration, Instant};
-use crate::entity::Entity;
 
 pub struct FrameRateTimer {
     whole_ms_per_frame: i32,
@@ -48,4 +48,21 @@ pub(crate) fn collision(
     h2: i32,
 ) -> bool {
     (max(x1, x2) < min(x1 + w1, x2 + w2)) && (max(y1, y2) < min(y1 + h1, y2 + h2))
+}
+
+pub(crate) fn remove_or_apply<T>(
+    v: &mut Vec<T>,
+    remove: impl Fn(&T) -> bool,
+    apply: impl Fn(&mut T),
+) {
+    let mut i = 0;
+    while i < v.len() {
+        let entry = &mut v[i];
+        if remove(entry) {
+            let _val = v.remove(i);
+        } else {
+            apply(entry);
+            i += 1;
+        }
+    }
 }

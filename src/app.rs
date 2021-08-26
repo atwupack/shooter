@@ -5,9 +5,7 @@ use sdl2::image::{InitFlag, Sdl2ImageContext};
 use sdl2::pixels::Color;
 use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
-
-pub const SCREEN_WIDTH: u32 = 1280;
-pub const SCREEN_HEIGHT: u32 = 720;
+use crate::defs::{SCREEN_WIDTH, SCREEN_HEIGHT, FPS};
 
 pub struct App {
     canvas: WindowCanvas,
@@ -57,7 +55,7 @@ impl App {
     }
 
     pub(crate) fn run_stage(&mut self, stage: &mut Stage) {
-        let mut frt = FrameRateTimer::new(60);
+        let mut frt = FrameRateTimer::new(FPS);
         loop {
             self.prepare_scene();
             self.do_input();

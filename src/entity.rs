@@ -1,16 +1,17 @@
-use crate::entity::EntityType::PLAYER;
+use crate::entity::EntityType::Player;
 use derive_builder::Builder;
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub enum EntityType {
-    PLAYER,
-    ENEMY,
-    BULLET,
+    Player,
+    Enemy,
+    PlayerBullet,
+    AlienBullet,
 }
 
 impl Default for EntityType {
     fn default() -> Self {
-        PLAYER
+        Player
     }
 }
 
