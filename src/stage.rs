@@ -1,37 +1,50 @@
 use crate::defs::{PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
-use crate::draw::Textures;
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
 use crate::entity::{Entity, EntityBuilder, EntityType};
-use crate::input::Inputs;
-use crate::util::{collision, remove_or_apply};
+use crate::engine::input::Inputs;
+use crate::engine::util::{collision, remove_or_apply};
 use rand::random;
-use sdl2::render::WindowCanvas;
+use crate::engine::scene::Scene;
+use crate::engine::draw::{Graphics, Textures};
 
 pub struct Stage {
     fighters: Vec<Entity>,
     bullets: Vec<Entity>,
     player: Entity,
-    textures: Textures,
+    textures: Textures<EntityType>,
     enemy_spawn_timer: u32,
 }
 
-impl Stage {
-    pub(crate) fn logic(&mut self, inputs: &Inputs) {
+impl Scene for Stage {
+    fn prepare_scene(&self, graphics: &mut Graphics) {
+        graphics.set_draw_color(96, 128, 255, 255);
+        graphics.clear();
+    }
+
+    fn present_scene(&self, graphics: &mut Graphics) {
+        graphics.present();
+    }
+
+    fn draw(&mut self, graphics: &mut Graphics) {
+        self.draw_player(graphics);
+        self.draw_bullets(graphics);
+        self.draw_fighters(graphics);
+
+    }
+
+    fn logic(&mut self, inputs: &Inputs) {
         self.do_player(inputs);
         self.do_bullets_hit_fighters();
         self.do_fighters();
         self.do_bullets();
         self.spawn_enemies();
     }
+}
 
-    pub(crate) fn draw(&mut self, canvas: &mut WindowCanvas) {
-        self.draw_player(canvas);
-        self.draw_bullets(canvas);
-        self.draw_fighters(canvas);
-    }
+impl Stage {
 
-    pub(crate) fn init_stage(canvas: &WindowCanvas) -> Self {
-        let mut textures = Textures::new(canvas);
+    pub(crate) fn init_stage(graphics: &Graphics) -> Self {
+        let mut textures = Textures::new(graphics);
         // bullets
         textures.load_texture(PlayerBullet, "gfx\\playerBullet.png");
         // enemy
@@ -41,7 +54,7 @@ impl Stage {
         textures.load_texture(Player, "gfx\\player.png");
         let player = init_player(&mut textures);
 
-        let mut stage = Stage {
+        let stage = Stage {
             fighters: Vec::new(),
             bullets: Vec::new(),
             textures,
@@ -70,10 +83,10 @@ impl Stage {
         self.player.set_reload(8);
     }
 
-    fn draw_bullets(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_bullets(&mut self, graphics: &mut Graphics) {
         for bullet in &self.bullets {
             self.textures.blit(
-                canvas,
+                graphics,
                 bullet.entity_type(),
                 bullet.x() as i32,
                 bullet.y() as i32,
@@ -136,9 +149,9 @@ impl Stage {
         self.player.apply_speed();
     }
 
-    fn draw_player(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_player(&mut self, graphics: &mut Graphics) {
         self.textures.blit(
-            canvas,
+            graphics,
             self.player.entity_type(),
             self.player.x() as i32,
             self.player.y() as i32,
@@ -175,10 +188,10 @@ impl Stage {
         }
     }
 
-    fn draw_fighters(&mut self, canvas: &mut WindowCanvas) {
+    fn draw_fighters(&mut self, graphics: &mut Graphics) {
         for fighter in &self.fighters {
             self.textures.blit(
-                canvas,
+                graphics,
                 fighter.entity_type(),
                 fighter.x() as i32,
                 fighter.y() as i32,
@@ -187,7 +200,7 @@ impl Stage {
     }
 }
 
-fn init_player(textures: &mut Textures) -> Entity {
+fn init_player(textures: &mut Textures<EntityType>) -> Entity {
     let (width, height) = textures.texture_size(Player);
     let player = EntityBuilder::default()
         .x(100.0)

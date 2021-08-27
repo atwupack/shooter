@@ -1,4 +1,3 @@
-use crate::entity::Entity;
 use std::cmp::{max, min};
 use std::thread;
 use std::time::{Duration, Instant};

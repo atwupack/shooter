@@ -1,26 +1,25 @@
-use crate::defs::{FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
-use crate::input::{do_input, Inputs};
-use crate::stage::Stage;
-use crate::util::FrameRateTimer;
+use crate::engine::input::{do_input, Inputs};
+use crate::engine::util::FrameRateTimer;
 use sdl2::image::{InitFlag, Sdl2ImageContext};
-use sdl2::pixels::Color;
-use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
+use crate::engine::draw::Graphics;
+use crate::engine::scene::Scene;
 
 pub struct App {
-    canvas: WindowCanvas,
+    graphics: Graphics,
     event: EventPump,
     _image: Sdl2ImageContext,
     inputs: Inputs,
+    requested_fps: u32,
 }
 
 impl App {
-    pub fn init_sdl() -> Self {
+    pub fn new(title: &str, width: u32, height: u32, requested_fps: u32) -> Self {
         let sdl_context = sdl2::init().unwrap();
 
         let video = sdl_context.video().unwrap();
         let window = video
-            .window("Shooter", SCREEN_WIDTH, SCREEN_HEIGHT)
+            .window(title, width, height)
             .build()
             .unwrap();
 
@@ -30,38 +29,30 @@ impl App {
         let image = sdl2::image::init(InitFlag::JPG | InitFlag::PNG).unwrap();
 
         App {
-            canvas,
+            graphics: Graphics::new(canvas),
             event,
             _image: image,
             inputs: Inputs::default(),
+            requested_fps,
         }
-    }
-
-    fn prepare_scene(&mut self) {
-        self.canvas.set_draw_color(Color::RGBA(96, 128, 255, 255));
-        self.canvas.clear();
-    }
-
-    fn present_scene(&mut self) {
-        self.canvas.present();
     }
 
     fn do_input(&mut self) {
         do_input(&mut self.event, &mut self.inputs);
     }
 
-    pub(crate) fn canvas(&self) -> &WindowCanvas {
-        &self.canvas
+    pub(crate) fn graphics(&self) -> &Graphics {
+        &self.graphics
     }
 
-    pub(crate) fn run_stage(&mut self, stage: &mut Stage) {
-        let mut frt = FrameRateTimer::new(FPS);
+    pub(crate) fn run_scene(&mut self, scene: &mut impl Scene) {
+        let mut frt = FrameRateTimer::new(self.requested_fps);
         loop {
-            self.prepare_scene();
+            scene.prepare_scene(&mut self.graphics);
             self.do_input();
-            stage.logic(&self.inputs);
-            stage.draw(&mut self.canvas);
-            self.present_scene();
+            scene.logic(&self.inputs);
+            scene.draw(&mut self.graphics);
+            scene.present_scene(&mut self.graphics);
             frt.cap_frame_rate();
         }
     }

@@ -1,4 +1,3 @@
-use crate::entity::EntityType::Player;
 use derive_builder::Builder;
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
@@ -11,7 +10,7 @@ pub enum EntityType {
 
 impl Default for EntityType {
     fn default() -> Self {
-        Player
+        Self::Player
     }
 }
 

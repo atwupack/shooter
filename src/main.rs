@@ -1,20 +1,19 @@
-mod app;
+use engine::app::App;
+
+use crate::defs::{FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
+use crate::stage::Stage;
+
 mod defs;
-mod draw;
 mod entity;
-mod input;
 mod stage;
-mod util;
+mod engine;
 
 extern crate sdl2;
 
-use crate::app::App;
-use crate::stage::Stage;
-
 pub fn main() {
-    let mut app = App::init_sdl();
+    let mut app = App::new("Shooter", SCREEN_WIDTH, SCREEN_HEIGHT, FPS);
 
-    let mut stage = Stage::init_stage(app.canvas());
+    let mut stage = Stage::init_stage(app.graphics());
 
-    app.run_stage(&mut stage);
+    app.run_scene(&mut stage);
 }
