@@ -7,5 +7,3 @@ pub trait Scene {
     fn draw(&mut self, graphics: &mut Graphics);
     fn logic(&mut self, inputs: &Inputs);
 }
-
-

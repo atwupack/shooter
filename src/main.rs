@@ -4,9 +4,9 @@ use crate::defs::{FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::stage::Stage;
 
 mod defs;
+mod engine;
 mod entity;
 mod stage;
-mod engine;
 
 extern crate sdl2;
 

@@ -30,6 +30,14 @@ pub struct Entity {
 }
 
 impl Entity {
+    pub(crate) fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+
+    pub(crate) fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+
     pub(crate) fn height(&self) -> u32 {
         self.height
     }

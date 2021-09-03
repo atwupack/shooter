@@ -1,9 +1,9 @@
+use crate::engine::draw::Graphics;
 use crate::engine::input::{do_input, Inputs};
+use crate::engine::scene::Scene;
 use crate::engine::util::FrameRateTimer;
 use sdl2::image::{InitFlag, Sdl2ImageContext};
 use sdl2::EventPump;
-use crate::engine::draw::Graphics;
-use crate::engine::scene::Scene;
 
 pub struct App {
     graphics: Graphics,
@@ -18,10 +18,7 @@ impl App {
         let sdl_context = sdl2::init().unwrap();
 
         let video = sdl_context.video().unwrap();
-        let window = video
-            .window(title, width, height)
-            .build()
-            .unwrap();
+        let window = video.window(title, width, height).build().unwrap();
 
         sdl2::hint::set("SDL_RENDER_SCALE_QUALITY", "linear");
         let canvas = window.into_canvas().accelerated().build().unwrap();

@@ -65,3 +65,13 @@ pub(crate) fn remove_or_apply<T>(
         }
     }
 }
+
+pub fn calc_slope(x1: f32, y1: f32, x2: f32, y2: f32) -> (f32, f32) {
+    let steps = (x1 - x2).abs().max((y1 - y2).abs());
+    if steps == 0.0 {
+        (0.0, 0.0)
+    }
+    else {
+        ((x1-x2)/ steps, (y1-y2) / steps)
+    }
+}

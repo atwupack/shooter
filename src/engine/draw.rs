@@ -1,9 +1,9 @@
-use sdl2::render::{WindowCanvas, TextureCreator, Texture};
+use sdl2::image::LoadTexture;
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use sdl2::render::{Texture, TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
-use sdl2::image::LoadTexture;
-use sdl2::rect::Rect;
-use sdl2::pixels::Color;
 use std::hash::Hash;
 
 pub struct Graphics {
@@ -12,9 +12,7 @@ pub struct Graphics {
 
 impl Graphics {
     pub fn new(canvas: WindowCanvas) -> Graphics {
-        Graphics {
-            canvas: canvas,
-        }
+        Graphics { canvas: canvas }
     }
 
     pub fn set_draw_color(&mut self, r: u8, g: u8, b: u8, a: u8) {
@@ -39,7 +37,7 @@ pub struct Textures<T> {
     texture_store: HashMap<T, Texture>,
 }
 
-impl<T: Eq+Hash> Textures<T> {
+impl<T: Eq + Hash> Textures<T> {
     pub fn new(graphics: &Graphics) -> Textures<T> {
         Textures {
             texture_creator: graphics.texture_creator(),
