@@ -4,16 +4,17 @@ use crate::engine::scene::Scene;
 use crate::engine::util::FrameRateTimer;
 use sdl2::image::{InitFlag, Sdl2ImageContext};
 use sdl2::EventPump;
+use std::hash::Hash;
 
-pub struct App {
-    graphics: Graphics,
+pub struct App<T> {
+    graphics: Graphics<T>,
     event: EventPump,
     _image: Sdl2ImageContext,
     inputs: Inputs,
     requested_fps: u32,
 }
 
-impl App {
+impl<T: Eq + Hash> App<T> {
     pub fn new(title: &str, width: u32, height: u32, requested_fps: u32) -> Self {
         let sdl_context = sdl2::init().unwrap();
 
@@ -38,16 +39,13 @@ impl App {
         do_input(&mut self.event, &mut self.inputs);
     }
 
-    pub(crate) fn graphics(&self) -> &Graphics {
-        &self.graphics
-    }
-
-    pub(crate) fn run_scene(&mut self, scene: &mut impl Scene) {
+    pub(crate) fn run_scene(&mut self, scene: &mut impl Scene<T>) {
+        scene.init_scene(&mut self.graphics);
         let mut frt = FrameRateTimer::new(self.requested_fps);
         loop {
             scene.prepare_scene(&mut self.graphics);
             self.do_input();
-            scene.logic(&self.inputs);
+            scene.logic(&self.inputs, &mut self.graphics);
             scene.draw(&mut self.graphics);
             scene.present_scene(&mut self.graphics);
             frt.cap_frame_rate();

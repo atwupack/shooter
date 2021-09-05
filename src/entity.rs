@@ -42,18 +42,15 @@ impl Entity {
         self.height
     }
 
-    pub(crate) fn reload(&self) -> u32 {
-        self.reload
-    }
-
     pub(crate) fn set_reload(&mut self, reload: u32) {
         self.reload = reload;
     }
 
-    pub(crate) fn dec_reload(&mut self) {
+    pub(crate) fn reload_done(&mut self) -> bool {
         if self.reload > 0 {
             self.reload -= 1;
         }
+        self.reload <= 0
     }
 
     pub(crate) fn apply_speed(&mut self) {

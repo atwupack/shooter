@@ -6,13 +6,16 @@ use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use std::hash::Hash;
 
-pub struct Graphics {
+pub struct Graphics<T> {
     canvas: WindowCanvas,
+    textures: Textures<T>,
 }
 
-impl Graphics {
-    pub fn new(canvas: WindowCanvas) -> Graphics {
-        Graphics { canvas: canvas }
+impl<T: Eq + Hash> Graphics<T> {
+    pub fn new(canvas: WindowCanvas) -> Graphics<T> {
+        let textures = Textures::new(&canvas);
+
+        Graphics { canvas, textures }
     }
 
     pub fn set_draw_color(&mut self, r: u8, g: u8, b: u8, a: u8) {
@@ -27,39 +30,39 @@ impl Graphics {
         self.canvas.present();
     }
 
-    fn texture_creator(&self) -> TextureCreator<WindowContext> {
-        self.canvas.texture_creator()
+    pub fn load_texture(&mut self, entity: T, filename: &str) {
+        let texture = self
+            .textures
+            .texture_creator
+            .load_texture(filename)
+            .unwrap();
+        self.textures.texture_store.insert(entity, texture);
+    }
+
+    pub(crate) fn texture_size(&self, entity: T) -> (u32, u32) {
+        let texture = self.textures.texture_store.get(&entity).unwrap();
+        let query = texture.query();
+        (query.width, query.height)
+    }
+
+    pub fn blit(&mut self, entity: T, x: i32, y: i32) {
+        let texture = self.textures.texture_store.get(&entity).unwrap();
+        let query = texture.query();
+        let rect = Rect::new(x, y, query.width, query.height);
+        self.canvas.copy(&texture, None, rect).unwrap();
     }
 }
 
-pub struct Textures<T> {
+struct Textures<T> {
     texture_creator: TextureCreator<WindowContext>,
     texture_store: HashMap<T, Texture>,
 }
 
 impl<T: Eq + Hash> Textures<T> {
-    pub fn new(graphics: &Graphics) -> Textures<T> {
+    fn new(canvas: &WindowCanvas) -> Textures<T> {
         Textures {
-            texture_creator: graphics.texture_creator(),
+            texture_creator: canvas.texture_creator(),
             texture_store: HashMap::new(),
         }
-    }
-
-    pub fn load_texture(&mut self, entity: T, filename: &str) {
-        let texture = self.texture_creator.load_texture(filename).unwrap();
-        self.texture_store.insert(entity, texture);
-    }
-
-    pub fn blit(&mut self, graphics: &mut Graphics, entity: T, x: i32, y: i32) {
-        let texture = self.texture_store.get(&entity).unwrap();
-        let query = texture.query();
-        let rect = Rect::new(x, y, query.width, query.height);
-        graphics.canvas.copy(&texture, None, rect).unwrap();
-    }
-
-    pub(crate) fn texture_size(&self, entity: T) -> (u32, u32) {
-        let texture = self.texture_store.get(&entity).unwrap();
-        let query = texture.query();
-        (query.width, query.height)
     }
 }
