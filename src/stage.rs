@@ -91,14 +91,14 @@ impl Stage {
     fn do_bullets(&mut self) {
         remove_or_apply(
             &mut self.player_bullets,
-            |bullet| bullet.health() == 0 || bullet.x() > SCREEN_WIDTH as f32,
+            |bullet| bullet.health == 0 || is_outside_screen(bullet),
             |bullet| {
                 bullet.apply_speed();
             },
         );
         remove_or_apply(
             &mut self.enemy_bullets,
-            |bullet| bullet.health() == 0 || bullet.x() > SCREEN_WIDTH as f32,
+            |bullet| bullet.health == 0 || is_outside_screen(bullet),
             |bullet| {
                 bullet.apply_speed();
             },
@@ -111,7 +111,7 @@ impl Stage {
         }
         if let Some(player) = &mut self.player {
             bullets_hit_fighter(&mut self.enemy_bullets, player);
-            if player.health() <= 0 {
+            if player.health <= 0 {
                 self.player = None;
             }
         }
@@ -120,7 +120,7 @@ impl Stage {
     fn do_enemies(&mut self, graphics: &Graphics<EntityType>) {
         remove_or_apply(
             &mut self.enemies,
-            |fighter| (fighter.x() < -(fighter.width() as f32)) || fighter.health() == 0,
+            |fighter| is_outside_screen(fighter) || fighter.health == 0,
             |fighter| {
                 fighter.apply_speed();
             },
@@ -138,20 +138,20 @@ impl Stage {
 
     fn do_player(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>) {
         if let Some(player) = &mut self.player {
-            player.set_dx(0.0);
-            player.set_dy(0.0);
+            player.dx = 0.0;
+            player.dy = 0.0;
 
             if inputs.up() {
-                player.set_dy(-PLAYER_SPEED);
+                player.dy = -PLAYER_SPEED;
             }
             if inputs.down() {
-                player.set_dy(PLAYER_SPEED);
+                player.dy = PLAYER_SPEED;
             }
             if inputs.left() {
-                player.set_dx(-PLAYER_SPEED);
+                player.dx = -PLAYER_SPEED;
             }
             if inputs.right() {
-                player.set_dx(PLAYER_SPEED);
+                player.dx = PLAYER_SPEED;
             }
 
             if inputs.fire() && player.reload_done() {
@@ -190,7 +190,7 @@ fn draw_entities<'a>(
     graphics: &mut Graphics<EntityType>,
 ) {
     for entity in entities {
-        graphics.blit(entity.entity_type(), entity.x() as i32, entity.y() as i32)
+        graphics.blit(entity.entity_type(), entity.x as i32, entity.y as i32)
     }
 }
 
@@ -213,16 +213,16 @@ fn fire_enemy_bullet(
     graphics: &Graphics<EntityType>,
 ) -> Entity {
     let (width, height) = graphics.texture_size(EntityType::AlienBullet);
-    let bullet_x = enemy.x() + (enemy.width() as f32 / 2.0) - (width as f32 / 2.0);
-    let bullet_y = enemy.y() + (enemy.height() as f32 / 2.0) - (height as f32 / 2.0);
+    let bullet_x = enemy.x + (enemy.width() as f32 / 2.0) - (width as f32 / 2.0);
+    let bullet_y = enemy.y + (enemy.height() as f32 / 2.0) - (height as f32 / 2.0);
 
     enemy.set_reload(random::<u32>() % FPS * 2);
 
     let (slope_x, slope_y) = calc_slope(
-        player.x() + (player.width() as f32 / 2.0),
-        player.y() + (player.height() as f32 / 2.0),
-        enemy.x(),
-        enemy.y(),
+        player.x + (player.width() as f32 / 2.0),
+        player.y + (player.height() as f32 / 2.0),
+        enemy.x,
+        enemy.y,
     );
 
     EntityBuilder::default()
@@ -241,43 +241,32 @@ fn fire_enemy_bullet(
 fn bullets_hit_fighter(bullets: &mut Vec<Entity>, fighter: &mut Entity) {
     for bullet in bullets {
         if collision(
-            fighter.x() as i32,
-            fighter.y() as i32,
+            fighter.x as i32,
+            fighter.y as i32,
             fighter.width() as i32,
             fighter.height() as i32,
-            bullet.x() as i32,
-            bullet.y() as i32,
+            bullet.x as i32,
+            bullet.y as i32,
             bullet.width() as i32,
             bullet.height() as i32,
         ) {
-            fighter.set_health(0);
-            bullet.set_health(0);
+            fighter.health = 0;
+            bullet.health = 0;
         }
     }
 }
 
 fn clip_entity_to_screen(entity: &mut Entity) {
-    if entity.health() <= 0 {
+    if entity.health <= 0 {
         return;
     }
-    if entity.x() < 0.0 {
-        entity.set_x(0.0);
-    }
-    if entity.y() < 0.0 {
-        entity.set_y(0.0);
-    }
-    if entity.x() > SCREEN_WIDTH as f32 / 2.0 {
-        entity.set_x(SCREEN_WIDTH as f32 / 2.0);
-    }
-    if entity.y() > (SCREEN_HEIGHT - entity.height()) as f32 {
-        entity.set_y((SCREEN_HEIGHT - entity.height()) as f32);
-    }
+    entity.restrict_position(0.0, 0.0, SCREEN_WIDTH as f32 / 2.0, (SCREEN_HEIGHT - entity.height()) as f32);
 }
 
 fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) -> Entity {
     let (width, height) = graphics.texture_size(EntityType::PlayerBullet);
-    let bullet_x = player.x();
-    let bullet_y = player.y() + (player.height() as f32 / 2.0) - (height as f32 / 2.0);
+    let bullet_x = player.x;
+    let bullet_y = player.y + (player.height() as f32 / 2.0) - (height as f32 / 2.0);
     player.set_reload(8);
     EntityBuilder::default()
         .x(bullet_x)
@@ -289,4 +278,8 @@ fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) 
         .health(1 as u32)
         .build()
         .unwrap()
+}
+
+fn is_outside_screen(entity: &Entity) -> bool {
+    (entity.x < -(entity.width() as f32)) || (entity.y < -(entity.height() as f32)) ||  entity.x > SCREEN_WIDTH as f32 || entity.y > SCREEN_HEIGHT as f32
 }

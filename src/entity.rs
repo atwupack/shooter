@@ -18,24 +18,31 @@ impl Default for EntityType {
 #[builder(default)]
 #[builder(setter(into))]
 pub struct Entity {
-    x: f32,
-    y: f32,
-    dx: f32,
-    dy: f32,
+    pub x: f32,
+    pub y: f32,
+    pub dx: f32,
+    pub dy: f32,
     width: u32,
     height: u32,
-    health: u32,
+    pub health: u32,
     reload: u32,
     entity_type: EntityType,
 }
 
 impl Entity {
-    pub(crate) fn set_x(&mut self, x: f32) {
-        self.x = x;
-    }
-
-    pub(crate) fn set_y(&mut self, y: f32) {
-        self.y = y;
+    pub(crate) fn restrict_position(&mut self, min_x: f32, min_y: f32, max_x: f32, max_y: f32) {
+        if self.x < min_x {
+            self.x = min_x;
+        }
+        if self.y < min_y {
+            self.y = min_y;
+        }
+        if self.x > max_x {
+            self.x = max_x;
+        }
+        if self.y > max_y {
+            self.y = max_y;
+        }
     }
 
     pub(crate) fn height(&self) -> u32 {
@@ -56,30 +63,6 @@ impl Entity {
     pub(crate) fn apply_speed(&mut self) {
         self.x += self.dx;
         self.y += self.dy;
-    }
-
-    pub(crate) fn set_dx(&mut self, dx: f32) {
-        self.dx = dx;
-    }
-
-    pub(crate) fn set_dy(&mut self, dy: f32) {
-        self.dy = dy;
-    }
-
-    pub(crate) fn x(&self) -> f32 {
-        self.x
-    }
-
-    pub(crate) fn y(&self) -> f32 {
-        self.y
-    }
-
-    pub(crate) fn set_health(&mut self, health: u32) {
-        self.health = health;
-    }
-
-    pub(crate) fn health(&self) -> u32 {
-        self.health
     }
 
     pub(crate) fn width(&self) -> u32 {
