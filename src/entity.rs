@@ -6,6 +6,8 @@ pub enum EntityType {
     Enemy,
     PlayerBullet,
     AlienBullet,
+    Background,
+    Explosion,
 }
 
 impl Default for EntityType {
@@ -72,4 +74,39 @@ impl Entity {
     pub(crate) fn entity_type(&self) -> EntityType {
         self.entity_type.clone()
     }
+}
+
+#[derive(Default, Builder, Debug)]
+#[builder(default)]
+#[builder(setter(into))]
+pub struct Explosion {
+    pub x: f32,
+    pub y: f32,
+    pub dx: f32,
+    pub dy: f32,
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8,
+}
+
+#[derive(Default, Builder, Debug)]
+#[builder(default)]
+#[builder(setter(into))]
+pub struct Debris {
+    pub x: f32,
+    pub y: f32,
+    pub dx: f32,
+    pub dy: f32,
+    life: i32,
+    entity_type: EntityType,
+}
+
+#[derive(Default, Builder, Debug)]
+#[builder(default)]
+#[builder(setter(into))]
+pub struct Star {
+    pub x: i32,
+    pub y: i32,
+    pub speed: u8,
 }

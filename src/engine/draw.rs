@@ -22,6 +22,10 @@ impl<T: Eq + Hash> Graphics<T> {
         self.canvas.set_draw_color(Color::RGBA(r, g, b, a));
     }
 
+    pub fn draw_line(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
+        self.canvas.draw_line((x1, y1), (x2, y2));
+    }
+
     pub fn clear(&mut self) {
         self.canvas.clear();
     }
@@ -50,6 +54,16 @@ impl<T: Eq + Hash> Graphics<T> {
         let query = texture.query();
         let rect = Rect::new(x, y, query.width, query.height);
         self.canvas.copy(&texture, None, rect).unwrap();
+    }
+
+    pub fn blit_size(&mut self, entity: T, x: i32, y: i32, w: u32, h: u32) {
+        let texture = self.textures.texture_store.get(&entity).unwrap();
+        let rect = Rect::new(x, y, w, h);
+        self.canvas.copy(&texture, None, rect).unwrap();
+    }
+
+    pub fn blit_rect(&mut self, entity: T, x: i32, y: i32) {
+
     }
 }
 
