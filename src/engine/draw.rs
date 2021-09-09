@@ -23,7 +23,7 @@ impl<T: Eq + Hash> Graphics<T> {
     }
 
     pub fn draw_line(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
-        self.canvas.draw_line((x1, y1), (x2, y2));
+        self.canvas.draw_line((x1, y1), (x2, y2)).unwrap();
     }
 
     pub fn clear(&mut self) {
