@@ -3,3 +3,4 @@ pub mod draw;
 pub mod input;
 pub mod scene;
 pub mod util;
+pub mod traits;

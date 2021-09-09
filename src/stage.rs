@@ -6,6 +6,7 @@ use crate::engine::util::{calc_slope, collision, remove_or_apply};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet, Background};
 use crate::entity::{Entity, EntityBuilder, EntityType, Explosion, Debris, Star, StarBuilder};
 use rand::random;
+use crate::engine::traits::HasVelocity;
 
 pub struct Stage {
     enemies: Vec<Entity>,
@@ -137,14 +138,14 @@ impl Stage {
             &mut self.player_bullets,
             |bullet| bullet.health == 0 || is_outside_screen(bullet),
             |bullet| {
-                bullet.apply_speed();
+                bullet.apply_velocity();
             },
         );
         remove_or_apply(
             &mut self.enemy_bullets,
             |bullet| bullet.health == 0 || is_outside_screen(bullet),
             |bullet| {
-                bullet.apply_speed();
+                bullet.apply_velocity();
             },
         );
     }
@@ -166,7 +167,7 @@ impl Stage {
             &mut self.enemies,
             |fighter| is_outside_screen(fighter) || fighter.health == 0,
             |fighter| {
-                fighter.apply_speed();
+                fighter.apply_velocity();
             },
         );
 
@@ -203,7 +204,7 @@ impl Stage {
                     .push(fire_player_bullet(player, graphics));
             }
 
-            player.apply_speed();
+            player.apply_velocity();
         }
     }
 
@@ -234,7 +235,7 @@ fn draw_entities<'a>(
     graphics: &mut Graphics<EntityType>,
 ) {
     for entity in entities {
-        graphics.blit(entity.entity_type(), entity.x as i32, entity.y as i32)
+        graphics.blit(entity)
     }
 }
 

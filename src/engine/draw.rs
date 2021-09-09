@@ -5,6 +5,7 @@ use sdl2::render::{Texture, TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use std::hash::Hash;
+use crate::engine::traits::IsRendered;
 
 pub struct Graphics<T> {
     canvas: WindowCanvas,
@@ -49,10 +50,10 @@ impl<T: Eq + Hash> Graphics<T> {
         (query.width, query.height)
     }
 
-    pub fn blit(&mut self, entity: T, x: i32, y: i32) {
-        let texture = self.textures.texture_store.get(&entity).unwrap();
+    pub fn blit(&mut self, entity: &impl IsRendered<T>) {
+        let texture = self.textures.texture_store.get(&entity.entity_type()).unwrap();
         let query = texture.query();
-        let rect = Rect::new(x, y, query.width, query.height);
+        let rect = Rect::new(entity.x() as i32, entity.y() as i32, query.width, query.height);
         self.canvas.copy(&texture, None, rect).unwrap();
     }
 

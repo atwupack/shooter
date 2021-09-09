@@ -1,4 +1,5 @@
 use derive_builder::Builder;
+use crate::engine::traits::{HasPosition, IsRendered, HasVelocity};
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub enum EntityType {
@@ -62,17 +63,51 @@ impl Entity {
         self.reload <= 0
     }
 
-    pub(crate) fn apply_speed(&mut self) {
-        self.x += self.dx;
-        self.y += self.dy;
-    }
-
     pub(crate) fn width(&self) -> u32 {
         self.width
     }
 
-    pub(crate) fn entity_type(&self) -> EntityType {
-        self.entity_type.clone()
+}
+
+impl HasPosition for Entity {
+    fn x(&self) -> f32 {
+        self.x
+    }
+
+    fn set_x(&mut self, x: f32) {
+        self.x = x
+    }
+
+    fn y(&self) -> f32 {
+        self.y
+    }
+
+    fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+}
+
+impl HasVelocity for Entity {
+    fn dx(&self) -> f32 {
+        self.dx
+    }
+
+    fn set_dx(&mut self, dx: f32) {
+        self.dx = dx;
+    }
+
+    fn dy(&self) -> f32 {
+        self.dy
+    }
+
+    fn set_dy(&mut self, dy: f32) {
+        self.dy = dy;
+    }
+}
+
+impl IsRendered<EntityType> for Entity {
+    fn entity_type(&self) -> &EntityType {
+        &self.entity_type
     }
 }
 
