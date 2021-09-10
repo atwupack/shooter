@@ -4,9 +4,10 @@ use crate::engine::input::Inputs;
 use crate::engine::scene::Scene;
 use crate::engine::util::{calc_slope, collision, remove_or_apply};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet, Background};
-use crate::entity::{Entity, EntityBuilder, EntityType, Explosion, Debris, Star, StarBuilder};
+use crate::entity::{Entity, EntityBuilder, EntityType, Debris, Star, StarBuilder};
 use rand::random;
 use crate::engine::traits::HasVelocity;
+use crate::entity::explosion::Explosion;
 
 pub struct Stage {
     enemies: Vec<Entity>,

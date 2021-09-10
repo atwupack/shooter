@@ -5,8 +5,8 @@ use crate::stage::Stage;
 
 mod defs;
 mod engine;
-mod entity;
 mod stage;
+mod entity;
 
 extern crate sdl2;
 
