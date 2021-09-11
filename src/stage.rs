@@ -65,6 +65,7 @@ impl Scene<EntityType> for Stage {
         self.do_bullets_hit_fighters();
         self.do_enemies(graphics);
         self.do_bullets();
+
         self.spawn_enemies(graphics);
         if let Some(player) = &mut self.player {
             clip_entity_to_screen(player);
@@ -95,6 +96,20 @@ impl Default for Stage {
 }
 
 impl Stage {
+
+    fn do_explosions(&mut self) {
+        remove_or_apply(
+            &mut self.explosions,
+            |ex| {
+                ex.a <= 1
+            } ,
+            |ex| {
+                ex.a -= 1;
+                ex.apply_velocity();
+            },
+        );
+    }
+
     fn reset_stage(&mut self, graphics: &mut Graphics<EntityType>) {
         self.enemies.clear();
         self.player_bullets.clear();
