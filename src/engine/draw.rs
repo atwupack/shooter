@@ -1,7 +1,7 @@
 use sdl2::image::LoadTexture;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use sdl2::render::{Texture, TextureCreator, WindowCanvas};
+use sdl2::render::{Texture, TextureCreator, WindowCanvas, BlendMode};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -61,6 +61,16 @@ impl<T: Eq + Hash> Graphics<T> {
         let texture = self.textures.texture_store.get(&entity).unwrap();
         let rect = Rect::new(x, y, w, h);
         self.canvas.copy(&texture, None, rect).unwrap();
+    }
+
+    pub fn blit_add(&mut self, entity: &impl IsRendered<T>, r: u8, g: u8, b: u8, a: u8) {
+        self.canvas.set_blend_mode(BlendMode::Add);
+        let texture = self.textures.texture_store.get_mut(&entity.entity_type()).unwrap();
+        texture.set_blend_mode(BlendMode::Add);
+        texture.set_color_mod(r,g,b);
+        texture.set_alpha_mod(a);
+        self.blit(entity);
+        self.canvas.set_blend_mode(BlendMode::None);
     }
 
     pub fn blit_rect(&mut self, entity: T, x: i32, y: i32) {

@@ -7,7 +7,7 @@ use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet, Backgr
 use crate::entity::{Entity, EntityBuilder, EntityType, Debris, Star, StarBuilder};
 use rand::random;
 use crate::engine::traits::HasVelocity;
-use crate::entity::explosion::Explosion;
+use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
 
 pub struct Stage {
     enemies: Vec<Entity>,
@@ -54,6 +54,7 @@ impl Scene<EntityType> for Stage {
         draw_starfield(&self.stars, graphics);
         draw_entities(&self.player, graphics);
         draw_entities(&self.enemies, graphics);
+        draw_explosions(&self.explosions, graphics);
         draw_entities(&self.player_bullets, graphics);
         draw_entities(&self.enemy_bullets, graphics);
     }
@@ -65,6 +66,7 @@ impl Scene<EntityType> for Stage {
         self.do_bullets_hit_fighters();
         self.do_enemies(graphics);
         self.do_bullets();
+        do_explosions(&mut self.explosions);
 
         self.spawn_enemies(graphics);
         if let Some(player) = &mut self.player {
@@ -96,19 +98,6 @@ impl Default for Stage {
 }
 
 impl Stage {
-
-    fn do_explosions(&mut self) {
-        remove_or_apply(
-            &mut self.explosions,
-            |ex| {
-                ex.a <= 1
-            } ,
-            |ex| {
-                ex.a -= 1;
-                ex.apply_velocity();
-            },
-        );
-    }
 
     fn reset_stage(&mut self, graphics: &mut Graphics<EntityType>) {
         self.enemies.clear();
@@ -169,10 +158,14 @@ impl Stage {
     fn do_bullets_hit_fighters(&mut self) {
         for fighter in &mut self.enemies {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
+            if fighter.health <= 0 {
+                add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
+            }
         }
         if let Some(player) = &mut self.player {
             bullets_hit_fighter(&mut self.enemy_bullets, player);
             if player.health <= 0 {
+                add_explosions(&mut self.explosions, player.x, player.y, 32);
                 self.player = None;
             }
         }
