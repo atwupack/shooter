@@ -20,4 +20,6 @@ pub trait HasVelocity: HasPosition {
 
 pub trait IsRendered<T>: HasPosition {
     fn entity_type(&self) -> &T;
+    fn width(&self) -> u32;
+    fn height(&self) -> u32;
 }

@@ -61,6 +61,14 @@ impl IsRendered<EntityType> for Explosion {
     fn entity_type(&self) -> &EntityType {
         &EntityType::Explosion
     }
+
+    fn width(&self) -> u32 {
+        0
+    }
+
+    fn height(&self) -> u32 {
+        0
+    }
 }
 
 pub fn do_explosions(explosions: &mut Vec<Explosion>) {

@@ -7,6 +7,8 @@ mod defs;
 mod engine;
 mod stage;
 mod entity;
+mod util;
+mod background;
 
 extern crate sdl2;
 

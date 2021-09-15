@@ -1,13 +1,16 @@
-use crate::defs::{ALIEN_BULLET_SPEED, FPS, PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH, MAX_STARS};
+use crate::defs::{ALIEN_BULLET_SPEED, FPS, PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::engine::draw::Graphics;
 use crate::engine::input::Inputs;
 use crate::engine::scene::Scene;
 use crate::engine::util::{calc_slope, collision, remove_or_apply};
-use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet, Background};
-use crate::entity::{Entity, EntityBuilder, EntityType, Debris, Star, StarBuilder};
+use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
+use crate::entity::{Entity, EntityBuilder, EntityType};
 use rand::random;
 use crate::engine::traits::HasVelocity;
 use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
+use crate::util::is_outside_screen;
+use crate::background::Background;
+use crate::entity::debris::Debris;
 
 pub struct Stage {
     enemies: Vec<Entity>,
@@ -16,10 +19,9 @@ pub struct Stage {
     player: Option<Entity>,
     explosions: Vec<Explosion>,
     debris: Vec<Debris>,
-    stars: Vec<Star>,
     enemy_spawn_timer: u32,
     stage_reset_timer: u32,
-    background_x: i32,
+    background: Background,
 }
 
 impl Scene<EntityType> for Stage {
@@ -32,12 +34,12 @@ impl Scene<EntityType> for Stage {
         // player
         graphics.load_texture(Player, "gfx\\player.png");
 
-        graphics.load_texture(Background, "gfx\\background.png");
+        graphics.load_texture(EntityType::Background, "gfx\\background.png");
         graphics.load_texture(EntityType::Explosion, "gfx\\explosion.png");
 
         let player = init_player(graphics);
         self.player = Some(player);
-        self.init_starfield();
+        self.background.init_starfield();
     }
 
     fn prepare_scene(&self, graphics: &mut Graphics<EntityType>) {
@@ -50,8 +52,7 @@ impl Scene<EntityType> for Stage {
     }
 
     fn draw(&mut self, graphics: &mut Graphics<EntityType>) {
-        draw_background(self.background_x, graphics);
-        draw_starfield(&self.stars, graphics);
+        self.background.draw_background(graphics);
         draw_entities(&self.player, graphics);
         draw_entities(&self.enemies, graphics);
         draw_explosions(&self.explosions, graphics);
@@ -60,8 +61,7 @@ impl Scene<EntityType> for Stage {
     }
 
     fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>) {
-        self.do_background();
-        self.do_starfield();
+        self.background.do_background();
         self.do_player(inputs, graphics);
         self.do_bullets_hit_fighters();
         self.do_enemies(graphics);
@@ -88,11 +88,10 @@ impl Default for Stage {
             enemy_bullets: Vec::new(),
             explosions: Vec::new(),
             debris: Vec::new(),
-            stars: Vec::new(),
             player: None,
             enemy_spawn_timer: 1,
             stage_reset_timer: FPS * 2,
-            background_x: 0,
+            background: Background::default(),
         }
     }
 }
@@ -105,38 +104,12 @@ impl Stage {
         self.enemy_bullets.clear();
         self.explosions.clear();
         self.debris.clear();
-        self.stars.clear();
         self.enemy_spawn_timer = 1;
         self.stage_reset_timer = FPS * 3;
         self.player = Some(init_player(graphics));
-        self.init_starfield();
+        self.background.init_starfield();
     }
 
-    fn init_starfield(&mut self) {
-        for i in 0..MAX_STARS {
-            self.stars.push(StarBuilder::default()
-                .x((random::<u32>() % SCREEN_WIDTH) as i32)
-                .y((random::<u32>() % SCREEN_HEIGHT) as i32)
-                .speed(1 + (random::<u8>() % 8))
-                .build().unwrap());
-        }
-    }
-
-    fn do_background(&mut self) {
-        self.background_x -= 1;
-        if self.background_x < -(SCREEN_WIDTH as i32) {
-            self.background_x = 0;
-        }
-    }
-
-    fn do_starfield(&mut self) {
-        for star in &mut self.stars{
-            star.x -= star.speed as i32;
-            if star.x < 0 {
-                star.x = SCREEN_WIDTH as i32 + star.x;
-            }
-        }
-    }
 
     fn do_bullets(&mut self) {
         remove_or_apply(
@@ -248,11 +221,6 @@ fn draw_entities<'a>(
     }
 }
 
-fn draw_background(background_x: i32, graphics: &mut Graphics<EntityType>) {
-    for x in (background_x..SCREEN_WIDTH as i32).step_by(SCREEN_WIDTH as usize) {
-        graphics.blit_size(Background, x, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    }
-}
 
 fn init_player(graphics: &mut Graphics<EntityType>) -> Entity {
     let (width, height) = graphics.texture_size(Player);
@@ -340,14 +308,3 @@ fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) 
         .unwrap()
 }
 
-fn is_outside_screen(entity: &Entity) -> bool {
-    (entity.x < -(entity.width() as f32)) || (entity.y < -(entity.height() as f32)) ||  entity.x > SCREEN_WIDTH as f32 || entity.y > SCREEN_HEIGHT as f32
-}
-
-fn draw_starfield(stars: &Vec<Star>, graphics: &mut Graphics<EntityType>) {
-    for star in stars {
-        let c = 31 * star.speed;
-        graphics.set_draw_color(c,c,c,255);
-        graphics.draw_line(star.x, star.y, star.x +3, star.y);
-    }
-}

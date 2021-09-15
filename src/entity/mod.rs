@@ -1,4 +1,5 @@
 pub mod explosion;
+pub mod debris;
 
 use derive_builder::Builder;
 use crate::engine::traits::{HasPosition, IsRendered, HasVelocity};
@@ -111,26 +112,12 @@ impl IsRendered<EntityType> for Entity {
     fn entity_type(&self) -> &EntityType {
         &self.entity_type
     }
-}
 
+    fn width(&self) -> u32 {
+        self.width
+    }
 
-#[derive(Default, Builder, Debug)]
-#[builder(default)]
-#[builder(setter(into))]
-pub struct Debris {
-    pub x: f32,
-    pub y: f32,
-    pub dx: f32,
-    pub dy: f32,
-    life: i32,
-    entity_type: EntityType,
-}
-
-#[derive(Default, Builder, Debug)]
-#[builder(default)]
-#[builder(setter(into))]
-pub struct Star {
-    pub x: i32,
-    pub y: i32,
-    pub speed: u8,
+    fn height(&self) -> u32 {
+        self.height
+    }
 }
