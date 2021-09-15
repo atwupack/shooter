@@ -1,5 +1,6 @@
 pub mod explosion;
 pub mod debris;
+pub mod bullet;
 
 use derive_builder::Builder;
 use crate::engine::traits::{HasPosition, IsRendered, HasVelocity};

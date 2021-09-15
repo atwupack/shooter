@@ -6,16 +6,18 @@ use crate::engine::util::{calc_slope, collision, remove_or_apply};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
 use crate::entity::{Entity, EntityBuilder, EntityType};
 use rand::random;
-use crate::engine::traits::HasVelocity;
+use crate::engine::traits::{HasVelocity, IsRendered, HasPosition};
 use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
-use crate::util::is_outside_screen;
+use crate::util::{is_outside_screen, draw_entities};
 use crate::background::Background;
 use crate::entity::debris::Debris;
+use crate::entity::bullet::{Bullet, do_bullets, BulletType};
+use crate::entity::bullet::{BulletType::EnemyBullet, BulletBuilder};
 
 pub struct Stage {
     enemies: Vec<Entity>,
-    player_bullets: Vec<Entity>,
-    enemy_bullets: Vec<Entity>,
+    player_bullets: Vec<Bullet>,
+    enemy_bullets: Vec<Bullet>,
     player: Option<Entity>,
     explosions: Vec<Explosion>,
     debris: Vec<Debris>,
@@ -112,20 +114,8 @@ impl Stage {
 
 
     fn do_bullets(&mut self) {
-        remove_or_apply(
-            &mut self.player_bullets,
-            |bullet| bullet.health == 0 || is_outside_screen(bullet),
-            |bullet| {
-                bullet.apply_velocity();
-            },
-        );
-        remove_or_apply(
-            &mut self.enemy_bullets,
-            |bullet| bullet.health == 0 || is_outside_screen(bullet),
-            |bullet| {
-                bullet.apply_velocity();
-            },
-        );
+        do_bullets(&mut self.player_bullets);
+        do_bullets(&mut self.enemy_bullets);
     }
 
     fn do_bullets_hit_fighters(&mut self) {
@@ -212,16 +202,6 @@ impl Stage {
     }
 }
 
-fn draw_entities<'a>(
-    entities: impl IntoIterator<Item = &'a Entity>,
-    graphics: &mut Graphics<EntityType>,
-) {
-    for entity in entities {
-        graphics.blit(entity)
-    }
-}
-
-
 fn init_player(graphics: &mut Graphics<EntityType>) -> Entity {
     let (width, height) = graphics.texture_size(Player);
     EntityBuilder::default()
@@ -239,7 +219,7 @@ fn fire_enemy_bullet(
     enemy: &mut Entity,
     player: &Entity,
     graphics: &Graphics<EntityType>,
-) -> Entity {
+) -> Bullet {
     let (width, height) = graphics.texture_size(EntityType::AlienBullet);
     let bullet_x = enemy.x + (enemy.width() as f32 / 2.0) - (width as f32 / 2.0);
     let bullet_y = enemy.y + (enemy.height() as f32 / 2.0) - (height as f32 / 2.0);
@@ -253,33 +233,33 @@ fn fire_enemy_bullet(
         enemy.y,
     );
 
-    EntityBuilder::default()
+    BulletBuilder::default()
         .x(bullet_x)
         .y(bullet_y)
         .dx(slope_x * ALIEN_BULLET_SPEED)
         .dy(slope_y * ALIEN_BULLET_SPEED)
         .width(width)
         .height(height)
-        .entity_type(AlienBullet)
-        .health(1 as u32)
+        .bullet_type(EnemyBullet)
+        .has_hit(false)
         .build()
         .unwrap()
 }
 
-fn bullets_hit_fighter(bullets: &mut Vec<Entity>, fighter: &mut Entity) {
+fn bullets_hit_fighter(bullets: &mut Vec<Bullet>, fighter: &mut Entity) {
     for bullet in bullets {
         if collision(
             fighter.x as i32,
             fighter.y as i32,
             fighter.width() as i32,
             fighter.height() as i32,
-            bullet.x as i32,
-            bullet.y as i32,
+            bullet.x() as i32,
+            bullet.y() as i32,
             bullet.width() as i32,
             bullet.height() as i32,
         ) {
             fighter.health = 0;
-            bullet.health = 0;
+            bullet.has_hit= true;
         }
     }
 }
@@ -291,19 +271,19 @@ fn clip_entity_to_screen(entity: &mut Entity) {
     entity.restrict_position(0.0, 0.0, SCREEN_WIDTH as f32 / 2.0, (SCREEN_HEIGHT - entity.height()) as f32);
 }
 
-fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) -> Entity {
+fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) -> Bullet {
     let (width, height) = graphics.texture_size(EntityType::PlayerBullet);
     let bullet_x = player.x;
     let bullet_y = player.y + (player.height() as f32 / 2.0) - (height as f32 / 2.0);
     player.set_reload(8);
-    EntityBuilder::default()
+    BulletBuilder::default()
         .x(bullet_x)
         .y(bullet_y)
         .dx(PLAYER_BULLET_SPEED)
         .width(width)
         .height(height)
-        .entity_type(PlayerBullet)
-        .health(1 as u32)
+        .bullet_type(BulletType::PlayerBullet)
+        .has_hit(false)
         .build()
         .unwrap()
 }

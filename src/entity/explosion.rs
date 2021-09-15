@@ -95,7 +95,7 @@ pub fn add_explosions(explosions: &mut Vec<Explosion>, x: f32, y: f32, num: u8) 
 
         let mode = random::<u32>() % 4;
 
-        let mut r: u8 = 0;
+        let mut r: u8;
         let mut g: u8 = 0;
         let mut b: u8 = 0;
 
