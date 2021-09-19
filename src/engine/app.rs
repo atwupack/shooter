@@ -26,6 +26,8 @@ impl<T: Eq + Hash> App<T> {
         let event = sdl_context.event_pump().unwrap();
         let image = sdl2::image::init(InitFlag::JPG | InitFlag::PNG).unwrap();
 
+        sdl_context.mouse().show_cursor(false);
+
         App {
             graphics: Graphics::new(canvas),
             event,

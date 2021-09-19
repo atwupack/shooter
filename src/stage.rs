@@ -10,7 +10,7 @@ use crate::engine::traits::{HasVelocity, IsRendered, HasPosition};
 use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
 use crate::util::{is_outside_screen, draw_entities};
 use crate::background::Background;
-use crate::entity::debris::Debris;
+use crate::entity::debris::{Debris, add_debris, draw_debris, do_debris};
 use crate::entity::bullet::{Bullet, do_bullets, BulletType};
 use crate::entity::bullet::{BulletType::EnemyBullet, BulletBuilder};
 
@@ -57,6 +57,7 @@ impl Scene<EntityType> for Stage {
         self.background.draw_background(graphics);
         draw_entities(&self.player, graphics);
         draw_entities(&self.enemies, graphics);
+        draw_debris(&self.debris, graphics);
         draw_explosions(&self.explosions, graphics);
         draw_entities(&self.player_bullets, graphics);
         draw_entities(&self.enemy_bullets, graphics);
@@ -68,6 +69,7 @@ impl Scene<EntityType> for Stage {
         self.do_bullets_hit_fighters();
         self.do_enemies(graphics);
         self.do_bullets();
+        do_debris(&mut self.debris);
         do_explosions(&mut self.explosions);
 
         self.spawn_enemies(graphics);
@@ -123,12 +125,14 @@ impl Stage {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
             if fighter.health <= 0 {
                 add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
+                add_debris(fighter, &mut self.debris);
             }
         }
         if let Some(player) = &mut self.player {
             bullets_hit_fighter(&mut self.enemy_bullets, player);
             if player.health <= 0 {
                 add_explosions(&mut self.explosions, player.x, player.y, 32);
+                add_debris(player, &mut self.debris);
                 self.player = None;
             }
         }

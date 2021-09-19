@@ -73,8 +73,9 @@ impl<T: Eq + Hash> Graphics<T> {
         self.canvas.set_blend_mode(BlendMode::None);
     }
 
-    pub fn blit_rect(&mut self, entity: T, x: i32, y: i32) {
-
+    pub fn blit_rect(&mut self, entity: &T, src: (i32, i32, u32, u32), x: i32, y: i32) {
+        let texture = self.textures.texture_store.get(entity).unwrap();
+        self.canvas.copy(&texture, Rect::from(src), Rect::new(x, y, src.2, src.3)).unwrap();
     }
 }
 
