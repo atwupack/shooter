@@ -6,14 +6,15 @@ edition = "2018"
 [dependencies]
 rand = "0.8.4"
 derive_builder = "0.10.2"
+png = "0.17.1"
 
 [dependencies.sdl2]
 version = "0.34.5"
 default-features = false
-features = ["image", "static-link", "use-vcpkg", "unsafe_textures"]
+features = ["static-link", "use-vcpkg", "unsafe_textures"]
 
 [package.metadata.vcpkg]
-dependencies = ["sdl2", "sdl2-image[libjpeg-turbo,tiff,libwebp]"]
+dependencies = ["sdl2"]
 git = "https://github.com/microsoft/vcpkg"
 rev = "261c458af6e3eed5d099144aff95d2b5035f656b"
 

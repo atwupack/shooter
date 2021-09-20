@@ -1,11 +1,12 @@
-use sdl2::image::LoadTexture;
-use sdl2::pixels::Color;
+use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, TextureCreator, WindowCanvas, BlendMode};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use std::hash::Hash;
 use crate::engine::traits::IsRendered;
+use std::fs::File;
+use sdl2::surface::Surface;
 
 pub struct Graphics<T> {
     canvas: WindowCanvas,
@@ -36,11 +37,16 @@ impl<T: Eq + Hash> Graphics<T> {
     }
 
     pub fn load_texture(&mut self, entity: T, filename: &str) {
-        let texture = self
-            .textures
-            .texture_creator
-            .load_texture(filename)
-            .unwrap();
+        let decoder = png::Decoder::new(File::open(filename).unwrap());
+        let mut reader = decoder.read_info().unwrap();
+        let mut buf = vec![0; reader.output_buffer_size()];
+        let info = reader.next_frame(&mut buf).unwrap();
+        let bytes = &mut buf[..info.buffer_size()];
+
+        let surface = Surface::from_data(bytes, info.width, info.height, 4*info.width, PixelFormatEnum::RGBA32).unwrap();
+
+        let texture = surface.as_texture(&self.textures.texture_creator).unwrap();
+
         self.textures.texture_store.insert(entity, texture);
     }
 
