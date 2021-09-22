@@ -5,4 +5,4 @@ pub const PLAYER_BULLET_SPEED: f32 = 16.0;
 pub const ALIEN_BULLET_SPEED: f32 = 8.0;
 pub const FPS: u32 = 60;
 pub const MAX_STARS: u32 = 500;
-pub const MAX_SND_CHANNELS: i32 = 8;
+pub const MAX_SND_CHANNELS: u8 = 8;
