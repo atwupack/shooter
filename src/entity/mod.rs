@@ -13,6 +13,7 @@ pub enum EntityType {
     AlienBullet,
     Background,
     Explosion,
+    Text,
 }
 
 impl Default for EntityType {

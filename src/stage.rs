@@ -16,6 +16,7 @@ use crate::entity::bullet::{BulletType::EnemyBullet, BulletBuilder};
 use crate::engine::audio::Sounds;
 use crate::sound::SoundType::{PlayerFire, AlienFire, PlayerDie, AlienDie};
 use crate::sound::SoundType;
+use crate::text::{draw_text, init_fonts};
 
 pub struct Stage {
     enemies: Vec<Entity>,
@@ -27,6 +28,8 @@ pub struct Stage {
     enemy_spawn_timer: u32,
     stage_reset_timer: u32,
     background: Background,
+    score: u32,
+    high_score: u32,
 }
 
 impl Scene<EntityType, SoundType> for Stage {
@@ -48,6 +51,8 @@ impl Scene<EntityType, SoundType> for Stage {
         sounds.load_sound(AlienDie, "sound\\10 Guage Shotgun-SoundBible.com-74120584.ogg");
 
         sounds.play_music("music\\Mercury.ogg");
+
+        init_fonts(graphics);
 
         let player = init_player(graphics);
         self.player = Some(player);
@@ -71,6 +76,7 @@ impl Scene<EntityType, SoundType> for Stage {
         draw_explosions(&self.explosions, graphics);
         draw_entities(&self.player_bullets, graphics);
         draw_entities(&self.enemy_bullets, graphics);
+        draw_hud(self.score, self.high_score, graphics);
     }
 
     fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) {
@@ -106,6 +112,8 @@ impl Default for Stage {
             enemy_spawn_timer: 1,
             stage_reset_timer: FPS * 2,
             background: Background::default(),
+            score: 0,
+            high_score: 0,
         }
     }
 }
@@ -122,6 +130,7 @@ impl Stage {
         self.stage_reset_timer = FPS * 3;
         self.player = Some(init_player(graphics));
         self.background.init_starfield();
+        self.score = 0;
     }
 
 
@@ -134,17 +143,19 @@ impl Stage {
         for fighter in &mut self.enemies {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
             if fighter.health <= 0 {
-                sounds.play_sound(&AlienDie);
                 add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
                 add_debris(fighter, &mut self.debris);
+                sounds.play_sound(&AlienDie);
+                self.score += 1;
+                self.high_score = self.score.max(self.high_score);
             }
         }
         if let Some(player) = &mut self.player {
             bullets_hit_fighter(&mut self.enemy_bullets, player);
             if player.health <= 0 {
-                sounds.play_sound(&PlayerDie);
                 add_explosions(&mut self.explosions, player.x, player.y, 32);
                 add_debris(player, &mut self.debris);
+                sounds.play_sound(&PlayerDie);
                 self.player = None;
             }
         }
@@ -305,4 +316,19 @@ fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) 
         .build()
         .unwrap()
 }
+
+fn draw_hud(score: u32, high_score: u32, graphics: &mut Graphics<EntityType>) {
+    let score_str = format!("SCORE: {}", score);
+    draw_text(10, 10, 255, 255, 255, score_str.as_str(), graphics);
+
+    let high_score_str = format!("HIGH SCORE: {}", high_score);
+    if score > 0 && score == high_score {
+        draw_text(960, 10, 0, 255, 0, high_score_str.as_str(), graphics);
+    }
+    else {
+        draw_text(960, 10, 255, 255, 255, high_score_str.as_str(), graphics);
+    }
+}
+
+
 

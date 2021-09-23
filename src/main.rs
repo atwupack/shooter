@@ -10,6 +10,7 @@ mod entity;
 mod util;
 mod background;
 mod sound;
+mod text;
 
 extern crate sdl2;
 
