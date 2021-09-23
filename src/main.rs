@@ -2,8 +2,6 @@ use engine::app::App;
 
 use crate::defs::{FPS, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::stage::Stage;
-use std::fs::File;
-use crate::engine::audio::Sounds;
 
 mod defs;
 mod engine;

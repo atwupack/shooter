@@ -5,5 +5,4 @@ pub enum SoundType {
     AlienFire,
     PlayerDie,
     AlienDie,
-    Max,
 }

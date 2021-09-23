@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use rodio::{Decoder, OutputStream, Sink};
 use std::fs::File;
 use std::io::{BufReader, Read, Cursor};
 use std::hash::Hash;
@@ -17,8 +17,7 @@ impl AsRef<[u8]> for SoundData {
 }
 
 pub struct Sounds<T> {
-    stream: OutputStream,
-    stream_handle: OutputStreamHandle,
+    _stream: OutputStream,
     channels: Vec<Sink>,
     sound_store: HashMap<T, SoundData>,
     music_channel: Sink,
@@ -34,15 +33,14 @@ impl<T: Eq + Hash> Sounds<T> {
         }
         let music_channel = Sink::try_new(&stream_handle).unwrap();
         Sounds {
-            stream,
-            stream_handle,
+            _stream: stream,
             channels,
             sound_store: HashMap::new(),
             music_channel,
         }
     }
     pub fn play_music(&mut self, file: &str) {
-        let mut file = BufReader::new(File::open(file).unwrap());
+        let file = BufReader::new(File::open(file).unwrap());
         let source = Decoder::new_looped(file).unwrap();
         self.music_channel.append(source);
     }
