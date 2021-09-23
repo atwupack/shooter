@@ -47,6 +47,8 @@ impl Scene<EntityType, SoundType> for Stage {
         sounds.load_sound(PlayerDie, "sound\\245372__quaker540__hq-explosion.ogg");
         sounds.load_sound(AlienDie, "sound\\10 Guage Shotgun-SoundBible.com-74120584.ogg");
 
+        sounds.play_music("music\\Mercury.ogg");
+
         let player = init_player(graphics);
         self.player = Some(player);
         self.background.init_starfield();
@@ -132,7 +134,7 @@ impl Stage {
         for fighter in &mut self.enemies {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
             if fighter.health <= 0 {
-                sounds.play_sound(&AlienDie, 3);
+                sounds.play_sound(&AlienDie);
                 add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
                 add_debris(fighter, &mut self.debris);
             }
@@ -140,7 +142,7 @@ impl Stage {
         if let Some(player) = &mut self.player {
             bullets_hit_fighter(&mut self.enemy_bullets, player);
             if player.health <= 0 {
-                sounds.play_sound(&PlayerDie, 2);
+                sounds.play_sound(&PlayerDie);
                 add_explosions(&mut self.explosions, player.x, player.y, 32);
                 add_debris(player, &mut self.debris);
                 self.player = None;
@@ -160,7 +162,7 @@ impl Stage {
         if let Some(player) = &self.player {
             for enemy in &mut self.enemies {
                 if enemy.reload_done() {
-                    sounds.play_sound(&AlienFire, 1);
+                    sounds.play_sound(&AlienFire);
                     self.enemy_bullets
                         .push(fire_enemy_bullet(enemy, player, graphics));
                 }
@@ -187,7 +189,7 @@ impl Stage {
             }
 
             if inputs.fire() && player.reload_done() {
-                sounds.play_sound(&PlayerFire, 0);
+                sounds.play_sound(&PlayerFire);
                 self.player_bullets
                     .push(fire_player_bullet(player, graphics));
             }

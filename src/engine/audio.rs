@@ -21,6 +21,7 @@ pub struct Sounds<T> {
     stream_handle: OutputStreamHandle,
     channels: Vec<Sink>,
     sound_store: HashMap<T, SoundData>,
+    music_channel: Sink,
 }
 
 impl<T: Eq + Hash> Sounds<T> {
@@ -31,12 +32,19 @@ impl<T: Eq + Hash> Sounds<T> {
             let sink = Sink::try_new(&stream_handle).unwrap();
             channels.push(sink);
         }
+        let music_channel = Sink::try_new(&stream_handle).unwrap();
         Sounds {
             stream,
             stream_handle,
             channels,
             sound_store: HashMap::new(),
+            music_channel,
         }
+    }
+    pub fn play_music(&mut self, file: &str) {
+        let mut file = BufReader::new(File::open(file).unwrap());
+        let source = Decoder::new_looped(file).unwrap();
+        self.music_channel.append(source);
     }
 
     pub fn load_sound(&mut self, sound: T, file: &str) {
@@ -49,11 +57,13 @@ impl<T: Eq + Hash> Sounds<T> {
         self.sound_store.insert(sound,  data);
     }
 
-    pub fn play_sound(&self, sound: &T, channel: u8) {
+    pub fn play_sound(&self, sound: &T) {
         let bytes = self.sound_store.get(sound).unwrap();
         let cursor = Cursor::new(bytes.clone());
         let source = Decoder::new(cursor).unwrap();
-        let sink = self.channels.get(channel as usize).unwrap();
-        sink.append(source);
+        let free_channel = self.channels.iter().find(|channel| channel.empty());
+        if let Some(sink) = free_channel {
+            sink.append(source);
+        }
     }
 }
