@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-rand = "0.8.4"
-derive_builder = "0.10.2"
+rand = "0.8"
+derive_builder = "0.10"
 geemu_audio = { path = "external/geemu_audio"}
 geemu_engine = { path = "external/geemu_engine"}
 

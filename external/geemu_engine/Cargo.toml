@@ -5,10 +5,10 @@ edition = "2018"
 
 [dependencies]
 geemu_audio = { path = "../geemu_audio"}
-png = "0.17.1"
+png = "0.17"
 
 [dependencies.sdl2]
-version = "0.34.5"
+version = "0.34"
 default-features = false
 features = ["static-link", "use-vcpkg", "unsafe_textures"]
 
