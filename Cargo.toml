@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+anyhow = "1.0.44"
 rand = "0.8.4"
 derive_builder = "0.10.2"
 png = "0.17.1"
+geemu_audio = { path = "external/geemu_audio"}
 
 [dependencies.rodio]
 version = "0.14.0"

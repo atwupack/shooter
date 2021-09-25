@@ -1,7 +1,7 @@
 use crate::defs::{ALIEN_BULLET_SPEED, FPS, PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::engine::draw::Graphics;
 use crate::engine::input::Inputs;
-use crate::engine::scene::Scene;
+use crate::engine::scene::{Scene, SceneResult};
 use crate::engine::util::{calc_slope, collision, remove_or_apply};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
 use crate::entity::{Entity, EntityBuilder, EntityType};
@@ -13,10 +13,11 @@ use crate::background::Background;
 use crate::entity::debris::{Debris, add_debris, draw_debris, do_debris};
 use crate::entity::bullet::{Bullet, do_bullets, BulletType};
 use crate::entity::bullet::{BulletType::EnemyBullet, BulletBuilder};
-use crate::engine::audio::Sounds;
 use crate::sound::SoundType::{PlayerFire, AlienFire, PlayerDie, AlienDie};
 use crate::sound::SoundType;
 use crate::text::{draw_text, init_fonts};
+use geemu_audio::Sounds;
+use std::error::Error;
 
 pub struct Stage {
     enemies: Vec<Entity>,
@@ -33,7 +34,7 @@ pub struct Stage {
 }
 
 impl Scene<EntityType, SoundType> for Stage {
-    fn init_scene(&mut self, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) {
+    fn init_scene(&mut self, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
         // bullets
         graphics.load_texture(PlayerBullet, "gfx\\playerBullet.png");
         // enemy
@@ -45,18 +46,19 @@ impl Scene<EntityType, SoundType> for Stage {
         graphics.load_texture(EntityType::Background, "gfx\\background.png");
         graphics.load_texture(EntityType::Explosion, "gfx\\explosion.png");
 
-        sounds.load_sound(PlayerFire, "sound\\334227__jradcoolness__laser.ogg");
-        sounds.load_sound(AlienFire, "sound\\196914__dpoggioli__laser-gun.ogg");
-        sounds.load_sound(PlayerDie, "sound\\245372__quaker540__hq-explosion.ogg");
-        sounds.load_sound(AlienDie, "sound\\10 Guage Shotgun-SoundBible.com-74120584.ogg");
+        sounds.load_sound(PlayerFire, "sound\\334227__jradcoolness__laser.ogg")?;
+        sounds.load_sound(AlienFire, "sound\\196914__dpoggioli__laser-gun.ogg")?;
+        sounds.load_sound(PlayerDie, "sound\\245372__quaker540__hq-explosion.ogg")?;
+        sounds.load_sound(AlienDie, "sound\\10 Guage Shotgun-SoundBible.com-74120584.ogg")?;
 
-        sounds.play_music("music\\Mercury.ogg");
+        sounds.play_music("music\\Mercury.ogg")?;
 
         init_fonts(graphics);
 
         let player = init_player(graphics);
         self.player = Some(player);
         self.background.init_starfield();
+        Ok(())
     }
 
     fn prepare_scene(&self, graphics: &mut Graphics<EntityType>) {
@@ -79,11 +81,11 @@ impl Scene<EntityType, SoundType> for Stage {
         draw_hud(self.score, self.high_score, graphics);
     }
 
-    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) {
+    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
         self.background.do_background();
-        self.do_player(inputs, graphics, sounds);
-        self.do_bullets_hit_fighters(sounds);
-        self.do_enemies(graphics, sounds);
+        self.do_player(inputs, graphics, sounds)?;
+        self.do_bullets_hit_fighters(sounds)?;
+        self.do_enemies(graphics, sounds)?;
         self.do_bullets();
         do_debris(&mut self.debris);
         do_explosions(&mut self.explosions);
@@ -97,6 +99,7 @@ impl Scene<EntityType, SoundType> for Stage {
                 self.reset_stage(graphics);
             }
         }
+        Ok(())
     }
 }
 
@@ -139,13 +142,13 @@ impl Stage {
         do_bullets(&mut self.enemy_bullets);
     }
 
-    fn do_bullets_hit_fighters(&mut self, sounds: &mut Sounds<SoundType>) {
+    fn do_bullets_hit_fighters(&mut self, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
         for fighter in &mut self.enemies {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
             if fighter.health <= 0 {
                 add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
                 add_debris(fighter, &mut self.debris);
-                sounds.play_sound(&AlienDie);
+                sounds.play_sound(&AlienDie)?;
                 self.score += 1;
                 self.high_score = self.score.max(self.high_score);
             }
@@ -155,13 +158,14 @@ impl Stage {
             if player.health <= 0 {
                 add_explosions(&mut self.explosions, player.x, player.y, 32);
                 add_debris(player, &mut self.debris);
-                sounds.play_sound(&PlayerDie);
+                sounds.play_sound(&PlayerDie)?;
                 self.player = None;
             }
         }
+        Ok(())
     }
 
-    fn do_enemies(&mut self, graphics: &Graphics<EntityType>, sounds: &mut Sounds<SoundType>) {
+    fn do_enemies(&mut self, graphics: &Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
         remove_or_apply(
             &mut self.enemies,
             |fighter| is_outside_screen(fighter) || fighter.health == 0,
@@ -173,15 +177,16 @@ impl Stage {
         if let Some(player) = &self.player {
             for enemy in &mut self.enemies {
                 if enemy.reload_done() {
-                    sounds.play_sound(&AlienFire);
+                    sounds.play_sound(&AlienFire)?;
                     self.enemy_bullets
                         .push(fire_enemy_bullet(enemy, player, graphics));
                 }
             }
         }
+        Ok(())
     }
 
-    fn do_player(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) {
+    fn do_player(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> Result<(), Box<dyn Error>> {
         if let Some(player) = &mut self.player {
             player.dx = 0.0;
             player.dy = 0.0;
@@ -200,13 +205,14 @@ impl Stage {
             }
 
             if inputs.fire() && player.reload_done() {
-                sounds.play_sound(&PlayerFire);
+                sounds.play_sound(&PlayerFire)?;
                 self.player_bullets
                     .push(fire_player_bullet(player, graphics));
             }
 
             player.apply_velocity();
         }
+        Ok(())
     }
 
     fn spawn_enemies(&mut self, graphics: &Graphics<EntityType>) {
