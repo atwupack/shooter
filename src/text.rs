@@ -1,6 +1,6 @@
 use crate::entity::EntityType;
-use crate::engine::draw::Graphics;
 use crate::entity::EntityType::Text;
+use geemu_engine::draw::Graphics;
 
 const GLYPH_HEIGHT: u32 = 28;
 const GLYPH_WIDTH: u32 = 18;

@@ -36,7 +36,7 @@ impl FrameRateTimer {
     }
 }
 
-pub(crate) fn collision(
+pub fn collision(
     x1: i32,
     y1: i32,
     w1: i32,
@@ -49,7 +49,7 @@ pub(crate) fn collision(
     (max(x1, x2) < min(x1 + w1, x2 + w2)) && (max(y1, y2) < min(y1 + h1, y2 + h2))
 }
 
-pub(crate) fn remove_or_apply<T>(
+pub fn remove_or_apply<T>(
     v: &mut Vec<T>,
     remove: impl Fn(&T) -> bool,
     apply: impl Fn(&mut T),

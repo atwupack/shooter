@@ -4,9 +4,9 @@ use sdl2::render::{Texture, TextureCreator, WindowCanvas, BlendMode};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
 use std::hash::Hash;
-use crate::engine::traits::IsRendered;
 use std::fs::File;
 use sdl2::surface::Surface;
+use crate::traits::IsRendered;
 
 pub struct Graphics<T> {
     canvas: WindowCanvas,
@@ -50,7 +50,7 @@ impl<T: Eq + Hash> Graphics<T> {
         self.textures.texture_store.insert(entity, texture);
     }
 
-    pub(crate) fn texture_size(&self, entity: T) -> (u32, u32) {
+    pub fn texture_size(&self, entity: T) -> (u32, u32) {
         let texture = self.textures.texture_store.get(&entity).unwrap();
         let query = texture.query();
         (query.width, query.height)

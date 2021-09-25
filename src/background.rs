@@ -1,8 +1,8 @@
 use derive_builder::Builder;
 use crate::defs::{MAX_STARS, SCREEN_WIDTH, SCREEN_HEIGHT};
 use rand::random;
-use crate::engine::draw::Graphics;
 use crate::entity::EntityType;
+use geemu_engine::draw::Graphics;
 
 #[derive(Default, Debug)]
 pub struct Background {

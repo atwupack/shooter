@@ -1,8 +1,8 @@
 use derive_builder::Builder;
-use crate::engine::traits::{HasPosition, HasVelocity, IsRendered};
 use crate::entity::EntityType;
-use crate::engine::util::remove_or_apply;
 use crate::util::is_outside_screen;
+use geemu_engine::traits::{HasPosition, HasVelocity, IsRendered};
+use geemu_engine::util::remove_or_apply;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum BulletType {

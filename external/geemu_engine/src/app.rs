@@ -1,11 +1,10 @@
-use crate::engine::draw::Graphics;
-use crate::engine::input::{do_input, Inputs};
-use crate::engine::scene::{Scene, SceneResult};
-use crate::engine::util::FrameRateTimer;
 use sdl2::EventPump;
 use std::hash::Hash;
-use crate::defs::MAX_SND_CHANNELS;
 use geemu_audio::Sounds;
+use crate::draw::Graphics;
+use crate::input::{Inputs, do_input};
+use crate::scene::{Scene, SceneResult};
+use crate::util::FrameRateTimer;
 
 pub struct App<T, S> {
     graphics: Graphics<T>,
@@ -16,7 +15,7 @@ pub struct App<T, S> {
 }
 
 impl<T: Eq + Hash, S: Eq + Hash> App<T, S> {
-    pub fn new(title: &str, width: u32, height: u32, requested_fps: u32) -> Self {
+    pub fn new(title: &str, width: u32, height: u32, requested_fps: u32, num_channels: u8) -> Self {
         let sdl_context = sdl2::init().unwrap();
 
         let video = sdl_context.video().unwrap();
@@ -30,7 +29,7 @@ impl<T: Eq + Hash, S: Eq + Hash> App<T, S> {
 
         App {
             graphics: Graphics::new(canvas),
-            sounds: Sounds::new(MAX_SND_CHANNELS).unwrap(),
+            sounds: Sounds::new(num_channels).unwrap(),
             event,
             inputs: Inputs::default(),
             requested_fps,
@@ -41,7 +40,7 @@ impl<T: Eq + Hash, S: Eq + Hash> App<T, S> {
         do_input(&mut self.event, &mut self.inputs);
     }
 
-    pub(crate) fn run_scene(&mut self, scene: &mut impl Scene<T, S>) -> SceneResult<()> {
+    pub fn run_scene(&mut self, scene: &mut impl Scene<T, S>) -> SceneResult<()> {
         scene.init_scene(&mut self.graphics, &mut self.sounds)?;
         let mut frt = FrameRateTimer::new(self.requested_fps);
         loop {

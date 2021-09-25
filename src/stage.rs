@@ -1,12 +1,7 @@
 use crate::defs::{ALIEN_BULLET_SPEED, FPS, PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
-use crate::engine::draw::Graphics;
-use crate::engine::input::Inputs;
-use crate::engine::scene::{Scene, SceneResult};
-use crate::engine::util::{calc_slope, collision, remove_or_apply};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
 use crate::entity::{Entity, EntityBuilder, EntityType};
 use rand::random;
-use crate::engine::traits::{HasVelocity, IsRendered, HasPosition};
 use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
 use crate::util::{is_outside_screen, draw_entities};
 use crate::background::Background;
@@ -18,6 +13,11 @@ use crate::sound::SoundType;
 use crate::text::{draw_text, init_fonts};
 use geemu_audio::Sounds;
 use std::error::Error;
+use geemu_engine::scene::{Scene, SceneResult};
+use geemu_engine::draw::Graphics;
+use geemu_engine::input::Inputs;
+use geemu_engine::util::{remove_or_apply, calc_slope, collision};
+use geemu_engine::traits::{HasVelocity, HasPosition, IsRendered};
 
 pub struct Stage {
     enemies: Vec<Entity>,

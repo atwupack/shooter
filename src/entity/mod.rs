@@ -3,7 +3,7 @@ pub mod debris;
 pub mod bullet;
 
 use derive_builder::Builder;
-use crate::engine::traits::{HasPosition, IsRendered, HasVelocity};
+use geemu_engine::traits::{HasPosition, HasVelocity, IsRendered};
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub enum EntityType {

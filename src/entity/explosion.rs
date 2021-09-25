@@ -1,11 +1,11 @@
 
 use derive_builder::Builder;
-use crate::engine::traits::{HasPosition, HasVelocity, IsRendered};
-use crate::engine::util::remove_or_apply;
 use crate::entity::EntityType;
-use crate::engine::draw::Graphics;
 use rand::random;
 use crate::defs::FPS;
+use geemu_engine::traits::{HasPosition, HasVelocity, IsRendered};
+use geemu_engine::util::remove_or_apply;
+use geemu_engine::draw::Graphics;
 
 #[derive(Default, Builder, Debug)]
 #[builder(default)]

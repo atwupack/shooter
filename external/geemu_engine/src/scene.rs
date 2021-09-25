@@ -1,7 +1,7 @@
-use crate::engine::draw::Graphics;
-use crate::engine::input::Inputs;
 use geemu_audio::Sounds;
 use std::error::Error;
+use crate::draw::Graphics;
+use crate::input::Inputs;
 
 pub trait Scene<T, S> {
     fn init_scene(&mut self, graphics: &mut Graphics<T>, sounds: &mut Sounds<S>) -> SceneResult<()>;

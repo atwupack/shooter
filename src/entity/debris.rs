@@ -1,10 +1,10 @@
 use derive_builder::Builder;
 use crate::entity::EntityType;
-use crate::engine::traits::IsRendered;
 use rand::random;
 use crate::defs::FPS;
-use crate::engine::draw::Graphics;
-use crate::engine::util::remove_or_apply;
+use geemu_engine::draw::Graphics;
+use geemu_engine::util::remove_or_apply;
+use geemu_engine::traits::IsRendered;
 
 #[derive(Default, Builder, Debug)]
 #[builder(default)]

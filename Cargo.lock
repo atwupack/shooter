@@ -37,12 +37,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.44"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
-
-[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -340,6 +334,15 @@ version = "0.1.0"
 dependencies = [
  "rodio",
  "thiserror",
+]
+
+[[package]]
+name = "geemu_engine"
+version = "0.1.0"
+dependencies = [
+ "geemu_audio",
+ "png",
+ "sdl2",
 ]
 
 [[package]]
@@ -889,13 +892,10 @@ checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
 name = "shooter"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "derive_builder",
  "geemu_audio",
- "png",
+ "geemu_engine",
  "rand",
- "rodio",
- "sdl2",
 ]
 
 [[package]]
