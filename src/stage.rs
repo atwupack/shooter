@@ -1,6 +1,6 @@
 use crate::defs::{ALIEN_BULLET_SPEED, FPS, PLAYER_BULLET_SPEED, PLAYER_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH};
 use crate::entity::EntityType::{AlienBullet, Enemy, Player, PlayerBullet};
-use crate::entity::{Entity, EntityBuilder, EntityType};
+use crate::entity::{Entity, EntityBuilder, EntityType, clip_entity_to_screen};
 use rand::random;
 use crate::entity::explosion::{Explosion, do_explosions, draw_explosions, add_explosions};
 use crate::util::{is_outside_screen, draw_entities};
@@ -9,7 +9,6 @@ use crate::entity::debris::{Debris, add_debris, draw_debris, do_debris};
 use crate::entity::bullet::{Bullet, do_bullets, BulletType};
 use crate::entity::bullet::{BulletType::EnemyBullet, BulletBuilder};
 use crate::sound::SoundType::{PlayerFire, AlienFire, PlayerDie, AlienDie};
-use crate::sound::SoundType;
 use crate::text::{draw_text, init_fonts};
 use geemu_audio::Sounds;
 use std::error::Error;
@@ -299,12 +298,6 @@ fn bullets_hit_fighter(bullets: &mut Vec<Bullet>, fighter: &mut Entity) {
     }
 }
 
-fn clip_entity_to_screen(entity: &mut Entity) {
-    if entity.health <= 0 {
-        return;
-    }
-    entity.restrict_position(0.0, 0.0, SCREEN_WIDTH as f32 / 2.0, (SCREEN_HEIGHT - entity.height()) as f32);
-}
 
 fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics) -> Bullet {
     let (width, height) = graphics.texture_size(EntityType::PlayerBullet);

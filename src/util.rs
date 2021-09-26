@@ -1,4 +1,3 @@
-use crate::entity::EntityType;
 use crate::defs::{SCREEN_WIDTH, SCREEN_HEIGHT};
 use geemu_engine::traits::IsRendered;
 use geemu_engine::draw::Graphics;

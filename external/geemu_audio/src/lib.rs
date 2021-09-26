@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use rodio::{Decoder, OutputStream, Sink, OutputStreamHandle};
 use std::fs::File;
 use std::io::{BufReader, Read, Cursor};
-use std::hash::Hash;
 use std::sync::Arc;
 use std::error::Error;
 use crate::AudioError::SoundNotFound;

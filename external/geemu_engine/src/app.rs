@@ -1,5 +1,4 @@
 use sdl2::EventPump;
-use std::hash::Hash;
 use geemu_audio::Sounds;
 use crate::draw::Graphics;
 use crate::input::{Inputs, do_input};

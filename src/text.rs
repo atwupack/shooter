@@ -1,4 +1,3 @@
-use crate::entity::EntityType;
 use crate::entity::EntityType::Text;
 use geemu_engine::draw::Graphics;
 

@@ -5,6 +5,7 @@ pub mod bullet;
 use derive_builder::Builder;
 use derive_more::Display;
 use geemu_engine::traits::{HasPosition, HasVelocity, IsRendered};
+use crate::defs::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Display)]
 pub enum EntityType {
@@ -130,3 +131,11 @@ impl IsRendered for Entity {
         self.height
     }
 }
+
+pub(crate) fn clip_entity_to_screen(entity: &mut Entity) {
+    if entity.health <= 0 {
+        return;
+    }
+    entity.restrict_position(0.0, 0.0, SCREEN_WIDTH as f32 / 2.0, (SCREEN_HEIGHT - entity.height()) as f32);
+}
+

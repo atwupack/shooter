@@ -3,7 +3,6 @@ use sdl2::rect::Rect;
 use sdl2::render::{Texture, TextureCreator, WindowCanvas, BlendMode};
 use sdl2::video::WindowContext;
 use std::collections::HashMap;
-use std::hash::Hash;
 use std::fs::File;
 use sdl2::surface::Surface;
 use crate::traits::IsRendered;

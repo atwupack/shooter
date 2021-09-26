@@ -1,5 +1,4 @@
 use derive_builder::Builder;
-use crate::entity::EntityType;
 use rand::random;
 use crate::defs::FPS;
 use geemu_engine::draw::Graphics;
