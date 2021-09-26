@@ -57,9 +57,9 @@ impl HasVelocity for Explosion {
     }
 }
 
-impl IsRendered<EntityType> for Explosion {
-    fn entity_type(&self) -> &EntityType {
-        &EntityType::Explosion
+impl IsRendered for Explosion {
+    fn entity_type(&self) -> String {
+        EntityType::Explosion.to_string()
     }
 
     fn width(&self) -> u32 {
@@ -84,7 +84,7 @@ pub fn do_explosions(explosions: &mut Vec<Explosion>) {
     );
 }
 
-pub fn draw_explosions(explosions: &Vec<Explosion>, graphics: &mut Graphics<EntityType>) {
+pub fn draw_explosions(explosions: &Vec<Explosion>, graphics: &mut Graphics) {
     for explosion in explosions {
         graphics.blit_add(explosion, explosion.r, explosion.g, explosion.b, explosion.a);
     }

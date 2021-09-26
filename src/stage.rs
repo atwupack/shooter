@@ -33,8 +33,8 @@ pub struct Stage {
     high_score: u32,
 }
 
-impl Scene<EntityType, SoundType> for Stage {
-    fn init_scene(&mut self, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
+impl Scene for Stage {
+    fn init_scene(&mut self, graphics: &mut Graphics, sounds: &mut Sounds) -> SceneResult<()> {
         // bullets
         graphics.load_texture(PlayerBullet, "gfx\\playerBullet.png");
         // enemy
@@ -61,16 +61,16 @@ impl Scene<EntityType, SoundType> for Stage {
         Ok(())
     }
 
-    fn prepare_scene(&self, graphics: &mut Graphics<EntityType>) {
+    fn prepare_scene(&self, graphics: &mut Graphics) {
         graphics.set_draw_color(96, 128, 255, 255);
         graphics.clear();
     }
 
-    fn present_scene(&self, graphics: &mut Graphics<EntityType>) {
+    fn present_scene(&self, graphics: &mut Graphics) {
         graphics.present();
     }
 
-    fn draw(&mut self, graphics: &mut Graphics<EntityType>) {
+    fn draw(&mut self, graphics: &mut Graphics) {
         self.background.draw_background(graphics);
         draw_entities(&self.player, graphics);
         draw_entities(&self.enemies, graphics);
@@ -81,7 +81,7 @@ impl Scene<EntityType, SoundType> for Stage {
         draw_hud(self.score, self.high_score, graphics);
     }
 
-    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
+    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics, sounds: &mut Sounds) -> SceneResult<()> {
         self.background.do_background();
         self.do_player(inputs, graphics, sounds)?;
         self.do_bullets_hit_fighters(sounds)?;
@@ -123,7 +123,7 @@ impl Default for Stage {
 
 impl Stage {
 
-    fn reset_stage(&mut self, graphics: &mut Graphics<EntityType>) {
+    fn reset_stage(&mut self, graphics: &mut Graphics) {
         self.enemies.clear();
         self.player_bullets.clear();
         self.enemy_bullets.clear();
@@ -142,13 +142,13 @@ impl Stage {
         do_bullets(&mut self.enemy_bullets);
     }
 
-    fn do_bullets_hit_fighters(&mut self, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
+    fn do_bullets_hit_fighters(&mut self, sounds: &mut Sounds) -> SceneResult<()> {
         for fighter in &mut self.enemies {
             bullets_hit_fighter(&mut self.player_bullets, fighter);
             if fighter.health <= 0 {
                 add_explosions(&mut self.explosions, fighter.x, fighter.y, 32);
                 add_debris(fighter, &mut self.debris);
-                sounds.play_sound(&AlienDie)?;
+                sounds.play_sound(AlienDie)?;
                 self.score += 1;
                 self.high_score = self.score.max(self.high_score);
             }
@@ -158,14 +158,14 @@ impl Stage {
             if player.health <= 0 {
                 add_explosions(&mut self.explosions, player.x, player.y, 32);
                 add_debris(player, &mut self.debris);
-                sounds.play_sound(&PlayerDie)?;
+                sounds.play_sound(PlayerDie)?;
                 self.player = None;
             }
         }
         Ok(())
     }
 
-    fn do_enemies(&mut self, graphics: &Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> SceneResult<()> {
+    fn do_enemies(&mut self, graphics: &Graphics, sounds: &mut Sounds) -> SceneResult<()> {
         remove_or_apply(
             &mut self.enemies,
             |fighter| is_outside_screen(fighter) || fighter.health == 0,
@@ -177,7 +177,7 @@ impl Stage {
         if let Some(player) = &self.player {
             for enemy in &mut self.enemies {
                 if enemy.reload_done() {
-                    sounds.play_sound(&AlienFire)?;
+                    sounds.play_sound(AlienFire)?;
                     self.enemy_bullets
                         .push(fire_enemy_bullet(enemy, player, graphics));
                 }
@@ -186,7 +186,7 @@ impl Stage {
         Ok(())
     }
 
-    fn do_player(&mut self, inputs: &Inputs, graphics: &mut Graphics<EntityType>, sounds: &mut Sounds<SoundType>) -> Result<(), Box<dyn Error>> {
+    fn do_player(&mut self, inputs: &Inputs, graphics: &mut Graphics, sounds: &mut Sounds) -> Result<(), Box<dyn Error>> {
         if let Some(player) = &mut self.player {
             player.dx = 0.0;
             player.dy = 0.0;
@@ -205,7 +205,7 @@ impl Stage {
             }
 
             if inputs.fire() && player.reload_done() {
-                sounds.play_sound(&PlayerFire)?;
+                sounds.play_sound(PlayerFire)?;
                 self.player_bullets
                     .push(fire_player_bullet(player, graphics));
             }
@@ -215,7 +215,7 @@ impl Stage {
         Ok(())
     }
 
-    fn spawn_enemies(&mut self, graphics: &Graphics<EntityType>) {
+    fn spawn_enemies(&mut self, graphics: &Graphics) {
         self.enemy_spawn_timer -= 1;
         if self.enemy_spawn_timer <= 0 {
             let (width, height) = graphics.texture_size(EntityType::Enemy);
@@ -237,7 +237,7 @@ impl Stage {
     }
 }
 
-fn init_player(graphics: &mut Graphics<EntityType>) -> Entity {
+fn init_player(graphics: &mut Graphics) -> Entity {
     let (width, height) = graphics.texture_size(Player);
     EntityBuilder::default()
         .x(100.0)
@@ -253,7 +253,7 @@ fn init_player(graphics: &mut Graphics<EntityType>) -> Entity {
 fn fire_enemy_bullet(
     enemy: &mut Entity,
     player: &Entity,
-    graphics: &Graphics<EntityType>,
+    graphics: &Graphics,
 ) -> Bullet {
     let (width, height) = graphics.texture_size(EntityType::AlienBullet);
     let bullet_x = enemy.x + (enemy.width() as f32 / 2.0) - (width as f32 / 2.0);
@@ -306,7 +306,7 @@ fn clip_entity_to_screen(entity: &mut Entity) {
     entity.restrict_position(0.0, 0.0, SCREEN_WIDTH as f32 / 2.0, (SCREEN_HEIGHT - entity.height()) as f32);
 }
 
-fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) -> Bullet {
+fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics) -> Bullet {
     let (width, height) = graphics.texture_size(EntityType::PlayerBullet);
     let bullet_x = player.x;
     let bullet_y = player.y + (player.height() as f32 / 2.0) - (height as f32 / 2.0);
@@ -323,7 +323,7 @@ fn fire_player_bullet(player: &mut Entity, graphics: &mut Graphics<EntityType>) 
         .unwrap()
 }
 
-fn draw_hud(score: u32, high_score: u32, graphics: &mut Graphics<EntityType>) {
+fn draw_hud(score: u32, high_score: u32, graphics: &mut Graphics) {
     let score_str = format!("SCORE: {}", score);
     draw_text(10, 10, 255, 255, 255, score_str.as_str(), graphics);
 

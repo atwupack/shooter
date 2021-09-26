@@ -27,14 +27,14 @@ impl AsRef<[u8]> for SoundData {
     }
 }
 
-pub struct Sounds<T> {
+pub struct Sounds {
     _stream: OutputStream,
     channels: Vec<Sink>,
-    sound_store: HashMap<T, SoundData>,
+    sound_store: HashMap<String, SoundData>,
     music_channel: Sink,
 }
 
-impl<T: Eq + Hash> Sounds<T> {
+impl Sounds {
     pub fn new(num_channels: u8) -> AudioResult<Self> {
         let (stream, stream_handle) =  OutputStream::try_default()?;
         Ok(Sounds::init_channels(stream, stream_handle, num_channels))
@@ -62,19 +62,19 @@ impl<T: Eq + Hash> Sounds<T> {
         Ok(self.music_channel.append(source))
     }
 
-    pub fn load_sound(&mut self, sound: T, file: &str) -> AudioResult<()> {
+    pub fn load_sound(&mut self, sound: impl Into<String>, file: &str) -> AudioResult<()> {
         let mut file = BufReader::new(File::open(file)?);
         let mut bytes = Vec::new();
         file.read_to_end(&mut bytes)?;
         let data = SoundData {
             data: Arc::new(bytes),
         };
-        self.sound_store.insert(sound,  data);
+        self.sound_store.insert(sound.into(),  data);
         Ok(())
     }
 
-    pub fn play_sound(&self, sound: &T) -> AudioResult<()> {
-        let bytes = self.sound_store.get(sound).ok_or(SoundNotFound)?;
+    pub fn play_sound(&self, sound: impl Into<String>) -> AudioResult<()> {
+        let bytes = self.sound_store.get(&sound.into()).ok_or(SoundNotFound)?;
         let cursor = Cursor::new(bytes.clone());
         let source = Decoder::new(cursor)?;
         let free_channel = self.channels.iter().find(|channel| channel.empty());

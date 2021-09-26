@@ -3,9 +3,10 @@ pub mod debris;
 pub mod bullet;
 
 use derive_builder::Builder;
+use derive_more::Display;
 use geemu_engine::traits::{HasPosition, HasVelocity, IsRendered};
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Display)]
 pub enum EntityType {
     Player,
     Enemy,
@@ -19,6 +20,12 @@ pub enum EntityType {
 impl Default for EntityType {
     fn default() -> Self {
         Self::Player
+    }
+}
+
+impl From<EntityType> for String {
+    fn from(entity: EntityType) -> Self {
+        entity.to_string()
     }
 }
 
@@ -110,9 +117,9 @@ impl HasVelocity for Entity {
     }
 }
 
-impl IsRendered<EntityType> for Entity {
-    fn entity_type(&self) -> &EntityType {
-        &self.entity_type
+impl IsRendered for Entity {
+    fn entity_type(&self) -> String {
+        self.entity_type.to_string()
     }
 
     fn width(&self) -> u32 {

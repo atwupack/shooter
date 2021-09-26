@@ -8,13 +8,13 @@ use std::fs::File;
 use sdl2::surface::Surface;
 use crate::traits::IsRendered;
 
-pub struct Graphics<T> {
+pub struct Graphics {
     canvas: WindowCanvas,
-    textures: Textures<T>,
+    textures: Textures,
 }
 
-impl<T: Eq + Hash> Graphics<T> {
-    pub fn new(canvas: WindowCanvas) -> Graphics<T> {
+impl Graphics {
+    pub fn new(canvas: WindowCanvas) -> Graphics {
         let textures = Textures::new(&canvas);
 
         Graphics { canvas, textures }
@@ -36,7 +36,7 @@ impl<T: Eq + Hash> Graphics<T> {
         self.canvas.present();
     }
 
-    pub fn load_texture(&mut self, entity: T, filename: &str) {
+    pub fn load_texture(&mut self, entity: impl Into<String>, filename: &str) {
         let decoder = png::Decoder::new(File::open(filename).unwrap());
         let mut reader = decoder.read_info().unwrap();
         let mut buf = vec![0; reader.output_buffer_size()];
@@ -47,29 +47,29 @@ impl<T: Eq + Hash> Graphics<T> {
 
         let texture = surface.as_texture(&self.textures.texture_creator).unwrap();
 
-        self.textures.texture_store.insert(entity, texture);
+        self.textures.texture_store.insert(entity.into(), texture);
     }
 
-    pub fn texture_size(&self, entity: T) -> (u32, u32) {
-        let texture = self.textures.texture_store.get(&entity).unwrap();
+    pub fn texture_size(&self, entity: impl Into<String>) -> (u32, u32) {
+        let texture = self.textures.texture_store.get(&entity.into()).unwrap();
         let query = texture.query();
         (query.width, query.height)
     }
 
-    pub fn blit(&mut self, entity: &impl IsRendered<T>) {
+    pub fn blit(&mut self, entity: &impl IsRendered) {
         let texture = self.textures.texture_store.get(&entity.entity_type()).unwrap();
         let query = texture.query();
         let rect = Rect::new(entity.x() as i32, entity.y() as i32, query.width, query.height);
         self.canvas.copy(&texture, None, rect).unwrap();
     }
 
-    pub fn blit_size(&mut self, entity: T, x: i32, y: i32, w: u32, h: u32) {
-        let texture = self.textures.texture_store.get(&entity).unwrap();
+    pub fn blit_size(&mut self, entity: impl Into<String>, x: i32, y: i32, w: u32, h: u32) {
+        let texture = self.textures.texture_store.get(&entity.into()).unwrap();
         let rect = Rect::new(x, y, w, h);
         self.canvas.copy(&texture, None, rect).unwrap();
     }
 
-    pub fn blit_add(&mut self, entity: &impl IsRendered<T>, r: u8, g: u8, b: u8, a: u8) {
+    pub fn blit_add(&mut self, entity: &impl IsRendered, r: u8, g: u8, b: u8, a: u8) {
         self.canvas.set_blend_mode(BlendMode::Add);
         let texture = self.textures.texture_store.get_mut(&entity.entity_type()).unwrap();
         texture.set_blend_mode(BlendMode::Add);
@@ -79,19 +79,19 @@ impl<T: Eq + Hash> Graphics<T> {
         self.canvas.set_blend_mode(BlendMode::None);
     }
 
-    pub fn blit_rect(&mut self, entity: &T, src: (i32, i32, u32, u32), x: i32, y: i32) {
-        let texture = self.textures.texture_store.get(entity).unwrap();
+    pub fn blit_rect(&mut self, entity: impl Into<String>, src: (i32, i32, u32, u32), x: i32, y: i32) {
+        let texture = self.textures.texture_store.get(&entity.into()).unwrap();
         self.canvas.copy(&texture, Rect::from(src), Rect::new(x, y, src.2, src.3)).unwrap();
     }
 }
 
-struct Textures<T> {
+struct Textures {
     texture_creator: TextureCreator<WindowContext>,
-    texture_store: HashMap<T, Texture>,
+    texture_store: HashMap<String, Texture>,
 }
 
-impl<T: Eq + Hash> Textures<T> {
-    fn new(canvas: &WindowCanvas) -> Textures<T> {
+impl Textures {
+    fn new(canvas: &WindowCanvas) -> Textures {
         Textures {
             texture_creator: canvas.texture_creator(),
             texture_store: HashMap::new(),

@@ -66,13 +66,13 @@ impl HasVelocity for Bullet {
     }
 }
 
-impl IsRendered<EntityType> for Bullet {
-    fn entity_type(&self) -> &EntityType {
+impl IsRendered for Bullet {
+    fn entity_type(&self) -> String {
         if self.bullet_type == BulletType::PlayerBullet {
-            &EntityType::PlayerBullet
+            EntityType::PlayerBullet.to_string()
         }
         else {
-            &EntityType::AlienBullet
+            EntityType::AlienBullet.to_string()
         }
     }
 

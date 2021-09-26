@@ -15,17 +15,17 @@ pub struct Debris {
     pub dx: f32,
     pub dy: f32,
     life: i32,
-    entity_type: EntityType,
+    entity_type: String,
     rect: (i32, i32, u32, u32),
 }
 
-pub(crate) fn draw_debris(debris: &Vec<Debris>, graphics: &mut Graphics<EntityType>) {
+pub(crate) fn draw_debris(debris: &Vec<Debris>, graphics: &mut Graphics) {
     for d in debris {
-        graphics.blit_rect(&d.entity_type, d.rect, d.x as i32, d.y as i32)
+        graphics.blit_rect(d.entity_type.clone(), d.rect, d.x as i32, d.y as i32)
     }
 }
 
-pub(crate) fn add_debris(entity: &impl IsRendered<EntityType>, debris: &mut Vec<Debris>) {
+pub(crate) fn add_debris(entity: &impl IsRendered, debris: &mut Vec<Debris>) {
 
     let w = entity.width() / 2;
     let h = entity.height() / 2;
@@ -38,7 +38,7 @@ pub(crate) fn add_debris(entity: &impl IsRendered<EntityType>, debris: &mut Vec<
                 .dx(((random::<i32>() % 5) - (random::<i32>() % 5)) as f32)
                 .dy((-5 - (random::<i32>() % 12)) as f32)
                 .life((FPS * 2) as i32)
-                .entity_type(entity.entity_type().clone())
+                .entity_type(entity.entity_type())
                 .rect((x as i32, y as i32, w, h))
                 .build().unwrap());
         }

@@ -6,15 +6,15 @@ use crate::input::{Inputs, do_input};
 use crate::scene::{Scene, SceneResult};
 use crate::util::FrameRateTimer;
 
-pub struct App<T, S> {
-    graphics: Graphics<T>,
-    sounds: Sounds<S> ,
+pub struct App {
+    graphics: Graphics,
+    sounds: Sounds ,
     event: EventPump,
     inputs: Inputs,
     requested_fps: u32,
 }
 
-impl<T: Eq + Hash, S: Eq + Hash> App<T, S> {
+impl App {
     pub fn new(title: &str, width: u32, height: u32, requested_fps: u32, num_channels: u8) -> Self {
         let sdl_context = sdl2::init().unwrap();
 
@@ -40,7 +40,7 @@ impl<T: Eq + Hash, S: Eq + Hash> App<T, S> {
         do_input(&mut self.event, &mut self.inputs);
     }
 
-    pub fn run_scene(&mut self, scene: &mut impl Scene<T, S>) -> SceneResult<()> {
+    pub fn run_scene(&mut self, scene: &mut impl Scene) -> SceneResult<()> {
         scene.init_scene(&mut self.graphics, &mut self.sounds)?;
         let mut frt = FrameRateTimer::new(self.requested_fps);
         loop {

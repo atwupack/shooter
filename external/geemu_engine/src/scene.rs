@@ -3,12 +3,12 @@ use std::error::Error;
 use crate::draw::Graphics;
 use crate::input::Inputs;
 
-pub trait Scene<T, S> {
-    fn init_scene(&mut self, graphics: &mut Graphics<T>, sounds: &mut Sounds<S>) -> SceneResult<()>;
-    fn prepare_scene(&self, graphics: &mut Graphics<T>);
-    fn present_scene(&self, graphics: &mut Graphics<T>);
-    fn draw(&mut self, graphics: &mut Graphics<T>);
-    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics<T>, sounds: &mut Sounds<S>) -> SceneResult<()>;
+pub trait Scene {
+    fn init_scene(&mut self, graphics: &mut Graphics, sounds: &mut Sounds) -> SceneResult<()>;
+    fn prepare_scene(&self, graphics: &mut Graphics);
+    fn present_scene(&self, graphics: &mut Graphics);
+    fn draw(&mut self, graphics: &mut Graphics);
+    fn logic(&mut self, inputs: &Inputs, graphics: &mut Graphics, sounds: &mut Sounds) -> SceneResult<()>;
 }
 
 pub type SceneResult<T> = Result<T, Box<dyn Error>>;

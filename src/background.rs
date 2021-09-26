@@ -40,7 +40,7 @@ impl Background {
         self.do_starfield();
     }
 
-    pub(crate) fn draw_background(&self, graphics: &mut Graphics<EntityType>) {
+    pub(crate) fn draw_background(&self, graphics: &mut Graphics) {
         for x in (self.background_x..SCREEN_WIDTH as i32).step_by(SCREEN_WIDTH as usize) {
             graphics.blit_size(EntityType::Background, x, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         }
@@ -48,7 +48,7 @@ impl Background {
         self.draw_starfield(graphics);
     }
 
-    fn draw_starfield(&self, graphics: &mut Graphics<EntityType>) {
+    fn draw_starfield(&self, graphics: &mut Graphics) {
         for star in &self.stars {
             let c = 31 * star.speed;
             graphics.set_draw_color(c,c,c,255);
